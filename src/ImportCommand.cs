@@ -103,5 +103,12 @@ public class ImportCommand : ICommand
             mesh.RecalculateNormals();
 
         mesh.RecalculateBounds();
+
+        // create gameobject with mesh
+        GameObject obj = new(mesh.name);
+        obj.AddComponent<MeshFilter>().sharedMesh = mesh;
+        obj.AddComponent<MeshRenderer>().sharedMaterial = new(DefaultReferenceManager.Instance.masterShader);
+
+        obj.transform.position = NewMovement.Instance?.transform.position ?? Vector3.zero;
     }
 }
