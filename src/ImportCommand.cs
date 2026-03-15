@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.Mesh;
 
 public class ImportCommand : ICommand
 {
@@ -54,6 +52,15 @@ public class ImportCommand : ICommand
             {
                 string[] parts = line[2..].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
 
+                // quad faces AAAAAAAAAAAAAAA
+                if (parts.Length == 4)
+                {
+                    // reorder the parts list to make 2 triangles out of a quad
+                    string[] oldParts = parts;
+                    parts = [ oldParts[0], oldParts[1], oldParts[2], // tri 1
+                            oldParts[0], oldParts[2], oldParts[3] ]; // tri 2
+                }
+
                 // f 1 2 3
                 if (!line.Contains('/'))
                     vertexIndices.AddRange(parts.Select(i => int.Parse(i)-1));
@@ -89,7 +96,7 @@ public class ImportCommand : ICommand
 
         // set vertices miaaaow
         mesh.SetVertices(vertices);
-        mesh.SetIndices(vertexIndices, 
+        mesh.SetIndices(vertexIndices,
             System.Enum.TryParse(type, out MeshTopology result)
             ? result
             : MeshTopology.Triangles, 0);
