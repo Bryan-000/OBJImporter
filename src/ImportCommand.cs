@@ -1,10 +1,12 @@
 ﻿namespace OBJImporter;
 
 using GameConsole;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using PLogConsole = GameConsole.Console;
 
 public class ImportCommand : ICommand
 {
@@ -12,8 +14,9 @@ public class ImportCommand : ICommand
     public string Description => "Imports an OBJ file into ultrakill.";
     public string Command => "import";
 
-    public void Execute(Console con, string[] args)
+    public void Execute(PLogConsole con, string[] args)
     {
+        var log = BepInEx.Logging.Logger.CreateLogSource("objimporter");
         string type = args[0];
         string path = args.From(1).Trim('"');
 
@@ -81,12 +84,16 @@ public class ImportCommand : ICommand
             }
         }
 
-        /*// order UV's and normals list since unity uses the same indices for vertices as for everything else
-        if (obj_uvIndices.Count != 0 || obj_normalIndices.Count != 0)
+        // sort UV's and normals list since unity uses the same indices for vertices as for everything else
+        Vector2[] UVs = new Vector2[vertices.Count];
+        if (obj_UVs.Count != 0)
             for (int i = 0; i < vertexIndices.Count; i++)
-            {
+                UVs[vertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
 
-            }*/
+        Vector3[] normals = new Vector3[vertices.Count];
+        if (obj_normals.Count != 0)
+            for (int i = 0; i < vertexIndices.Count; i++)
+                normals[vertexIndices[i]] = obj_normals[obj_normalIndices[i]];
 
         // turn obj data into a mesh :3
         Mesh mesh = new()
@@ -97,20 +104,20 @@ public class ImportCommand : ICommand
         // set vertices miaaaow
         mesh.SetVertices(vertices);
         mesh.SetIndices(vertexIndices,
-            System.Enum.TryParse(type, out MeshTopology result)
+            Enum.TryParse(type, out MeshTopology result)
             ? result
             : MeshTopology.Triangles, 0);
 
-        /*// some meshs dont have uv's so check
-        if (obj_UVs.Count != 0 && obj_uvIndices.Count != 0)
-            mesh.SetUVs(0, obj_UVs);
+        // some meshs dont have uv's so check
+        if (obj_UVs.Count != 0)
+            mesh.SetUVs(0, UVs);
         else
             mesh.RecalculateUVDistributionMetric(0);
 
         // same for normals
-        if (obj_normals.Count != 0 && obj_normalIndices.Count != 0)
-            mesh.SetNormals(obj_normals);
-        else*/
+        if (obj_normals.Count != 0)
+            mesh.SetNormals(normals);
+        else
             mesh.RecalculateNormals();
 
         mesh.RecalculateBounds();

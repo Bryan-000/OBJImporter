@@ -28,10 +28,10 @@ public static class Tools
         return pos;
     }
 
-    extension(IEnumerable<string> strEnum)
+    extension(IEnumerable<string> Enum)
     {
         /// <summary> Gets everything in a IEnumerable&lt;string&gt; after a specific index and joins it into one string. </summary>
         public string From(int index, string seperator = null) =>
-            string.Join(seperator ?? " ", strEnum.Skip(index));
+            string.Join(seperator ?? " ", Enum.Skip(index));
     }
 }
