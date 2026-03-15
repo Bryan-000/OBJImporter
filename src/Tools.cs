@@ -3,6 +3,8 @@
 namespace OBJImporter;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary> Class full of useful tools :3 </summary>
@@ -24,5 +26,12 @@ public static class Tools
         Vector2 pos = new(float.Parse(parts[0]), float.Parse(parts[1]));
 
         return pos;
+    }
+
+    extension(IEnumerable<string> strEnum)
+    {
+        /// <summary> Gets everything in a IEnumerable&lt;string&gt; after a specific index and joins it into one string. </summary>
+        public string From(int index, string seperator = null) =>
+            string.Join(seperator ?? " ", strEnum.Skip(index));
     }
 }

@@ -16,7 +16,8 @@ public class ImportCommand : ICommand
 
     public void Execute(Console con, string[] args)
     {
-        string path = string.Join(" ", args);
+        string type = args[0];
+        string path = args.From(1).Trim('"');
 
         if (!path.EndsWith(".obj") || !File.Exists(path))
             Debug.LogError("File at path {path} doesn't exist or isn't an obj file.");
@@ -88,7 +89,10 @@ public class ImportCommand : ICommand
 
         // set vertices miaaaow
         mesh.SetVertices(vertices);
-        mesh.SetIndices(vertexIndices, MeshTopology.Triangles, 0);
+        mesh.SetIndices(vertexIndices, 
+            System.Enum.TryParse(type, out MeshTopology result)
+            ? result
+            : MeshTopology.Triangles, 0);
 
         /*// some meshs dont have uv's so check
         if (obj_UVs.Count != 0 && obj_uvIndices.Count != 0)
