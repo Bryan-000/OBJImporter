@@ -16,9 +16,7 @@ public class ImportCommand : ICommand
 
     public void Execute(PLogConsole con, string[] args)
     {
-        var log = BepInEx.Logging.Logger.CreateLogSource("objimporter");
-        string type = args[0];
-        string path = args.From(1).Trim('"');
+        string path = string.Join(' ', args);
 
         if (!path.EndsWith(".obj") || !File.Exists(path))
             Debug.LogError("File at path {path} doesn't exist or isn't an obj file.");
@@ -53,7 +51,7 @@ public class ImportCommand : ICommand
             // faces/indicies :p
             else if (line.StartsWith("f "))
             {
-                string[] parts = line[2..].Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+                string[] parts = line[2..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 // quad faces AAAAAAAAAAAAAAA
                 if (parts.Length == 4)
@@ -103,10 +101,7 @@ public class ImportCommand : ICommand
 
         // set vertices miaaaow
         mesh.SetVertices(vertices);
-        mesh.SetIndices(vertexIndices,
-            Enum.TryParse(type, out MeshTopology result)
-            ? result
-            : MeshTopology.Triangles, 0);
+        mesh.SetIndices(vertexIndices, MeshTopology.Triangles, 0);
 
         // some meshs dont have uv's so check
         if (obj_UVs.Count != 0)
