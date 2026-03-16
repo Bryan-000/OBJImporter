@@ -51,15 +51,21 @@ public class ImportCommand : ICommand
             // faces/indicies :p
             else if (line.StartsWith("f "))
             {
-                string[] parts = line[2..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                List<string> parts = [.. line[2..].Split(' ', StringSplitOptions.RemoveEmptyEntries)];
 
-                // quad faces AAAAAAAAAAAAAAA
-                if (parts.Length == 4)
+                // triangle strip faces AAAAAAAAAAAAAAA
+                if (parts.Count > 3)
                 {
-                    // reorder the parts list to make 2 triangles out of a quad
-                    string[] oldParts = parts;
-                    parts = [ oldParts[0], oldParts[1], oldParts[2], // tri 1
-                            oldParts[0], oldParts[2], oldParts[3] ]; // tri 2
+                    // reorder the parts list to make multiple triangles out of a strip
+                    string[] oldParts = [.. parts];
+
+                    parts.Clear();
+                    for (int i = 1; i < oldParts.Length-1; i++)
+                    {
+                        parts.Add(oldParts[0]);
+                        parts.Add(oldParts[i]);
+                        parts.Add(oldParts[i+1]);
+                    }
                 }
 
                 // f 1 2 3
@@ -67,18 +73,17 @@ public class ImportCommand : ICommand
                     vertexIndices.AddRange(parts.Select(i => int.Parse(i)-1));
 
                 // f v1/u1/n1 v2/u2/n2 v3/u3/n3
-                else
-                    foreach (string part in parts)
-                    {
-                        string[] segmentsmeow = part.Split('/');
-
+                else foreach (string part in parts)
+                {
+                    string[] segmentsmeow = part.Split('/');
+                    
                         vertexIndices.Add(int.Parse(segmentsmeow[0])-1); // vertex indicies MUST exist
-
-                        // either UV indices or normal indicies could maybe not exist if this model doesnt have uv's or normals
-                        // and in those cases it just does `f v1//n1 v2//n2 v3//n3` or `f v1/u1/ v2/u2/ v3/u3/`
+                    
+                    // either UV indices or normal indicies could maybe not exist if this model doesnt have uv's or normals
+                    // and in those cases it just does `f v1//n1 v2//n2 v3//n3` or `f v1/u1/ v2/u2/ v3/u3/`
                         if (int.TryParse(segmentsmeow[1], out int uI)) obj_uvIndices.Add(uI-1);
                         if (int.TryParse(segmentsmeow[2], out int nI)) obj_normalIndices.Add(nI-1);
-                    }
+                }
             }
         }
 
