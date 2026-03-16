@@ -16,7 +16,7 @@ public class ImportCommand : ICommand
 
     public void Execute(PLogConsole con, string[] args)
     {
-        string path = string.Join(' ', args);
+        string path = string.Join(' ', args).Trim('"');
 
         if (!path.EndsWith(".obj") || !File.Exists(path))
             Debug.LogError("File at path {path} doesn't exist or isn't an obj file.");
