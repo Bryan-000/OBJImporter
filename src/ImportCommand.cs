@@ -22,6 +22,6 @@ public class ImportCommand : ICommand
         obj.AddComponent<MeshFilter>().sharedMesh = mesh;
         obj.AddComponent<MeshRenderer>().sharedMaterial = new(DefaultReferenceManager.Instance.masterShader);
 
-        obj.transform.position = Camera.current?.transform.position ?? Vector3.zero;
+        obj.transform.position = (NewMovement.Instance?.transform ?? Camera.main?.transform ?? Camera.current?.transform)?.position ?? Vector3.zero;
     }
 }
