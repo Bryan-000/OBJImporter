@@ -26,16 +26,21 @@ public static class Importer
                            out List<int> vertexIndices, out List<int> obj_normalIndices, out List<int> obj_uvIndices);
 
 
-        // sort UV's and normals list for unity, since unity uses the same indices for vertices as for everything else
+        // sort UV's and normals list for unity, since unity uses the same indices for vertices as for everything else]
         Vector2[] UVs = new Vector2[vertices.Count];
-        if (obj_UVs.Count != 0)                                    // take the uv at obj_uvIndice in obj_uv's
-            for (int i = 0; i < vertexIndices.Count; i++)          // and set the uv at vertexIndice in uv's to that obj_uv
-                UVs[vertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
-                                                                   // so that when unity takes the vertexIndice
-        Vector3[] normals = new Vector3[vertices.Count];           // and looks in the uv's for the uv, it gets the right one
-        if (obj_normals.Count != 0)
-            for (int i = 0; i < vertexIndices.Count; i++)
-                normals[vertexIndices[i]] = obj_normals[obj_normalIndices[i]];
+        Vector3[] normals = new Vector3[vertices.Count];
+        if (obj_UVs.Count != 0 || obj_normals.Count != 0)
+        {
+            int i = -1;
+            while (++i < vertexIndices.Count)
+            {
+                // take the uv at obj_uvIndice in obj_uv's and set the uv at vertexIndice in uv's to that obj_uv
+                if (obj_UVs.Count != 0) UVs[vertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
+                if (obj_normals.Count != 0) normals[vertexIndices[i]] = obj_normals[obj_normalIndices[i]];
+
+                // so that when unity takes the vertexIndice and looks in the uv's for the uv at that vertexIndice, it gets the right one
+            }
+        }
 
 
         // turn modified obj data into a mesh :3
@@ -74,23 +79,27 @@ public static class Importer
 
         foreach (string line in lines)
         {
-            if (line.StartsWith('#') || line.StartsWith("mtllib"))
+            if (line[0] == '#')
                 continue;
 
-            // vertice positions :3
-            if (line.StartsWith("v "))
-                vertices.Add(StringToVector3(line[2..]));
+            //int spaceI = line.IndexOf(' ');
+            if (line[0] == 'v')
+            {
+                // (v) vertice positions :3
+                if (line[1] == ' ')
+                    vertices.Add(StringToVector3(line[2..]));
 
-            // normals meow
-            else if (line.StartsWith("vn "))
-                normals.Add(StringToVector3(line[3..]));
+                // (vn) normals meow
+                else if (line[1] == 'n')
+                    normals.Add(StringToVector3(line[3..]));
 
-            // uv's rawr >:3
-            else if (line.StartsWith("vt "))
-                UVs.Add(StringToVector2(line[3..]));
+                // (vt) uv's rawr >:3
+                else if (line[1] == 't')
+                    UVs.Add(StringToVector2(line[3..]));
+            }
 
-            // faces/indicies :p
-            else if (line.StartsWith("f "))
+            // (f) faces/indicies :p
+            else if (line[0] == 'f')
             {
                 List<string> parts = [.. line[2..].Split(' ', StringSplitOptions.RemoveEmptyEntries)];
 
@@ -130,6 +139,7 @@ public static class Importer
                     }
                 }
             }
+
         }
     }
 
@@ -140,9 +150,7 @@ public static class Importer
     public static Vector3 StringToVector3(string str)
     {
         string[] parts = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        Vector3 pos = new(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
-
-        return pos;
+        return new(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
     }
 
     /// <summary> Converts a string into a Vector2. </summary>
@@ -150,9 +158,7 @@ public static class Importer
     public static Vector2 StringToVector2(string str)
     {
         string[] parts = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        Vector2 pos = new(float.Parse(parts[0]), float.Parse(parts[1]));
-
-        return pos;
+        return new(float.Parse(parts[0]), float.Parse(parts[1]));
     }
 
     #endregion
