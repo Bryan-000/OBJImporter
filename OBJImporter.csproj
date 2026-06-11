@@ -28,6 +28,9 @@
 		<Reference Include="Assembly-CSharp gay" Publicize="true">
 			<HintPath>$(ManagedPath)\Assembly-CSharp.dll</HintPath>
 		</Reference>
+		<Reference Include="PLog lesbiab" Publicize="true">
+			<HintPath>$(ManagedPath)\plog.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="Build">
