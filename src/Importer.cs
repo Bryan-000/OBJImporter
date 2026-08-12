@@ -1,6 +1,5 @@
 ﻿namespace OBJImporter;
 
-using GameConsole;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +10,7 @@ using UnityEngine;
 
 public static class Importer
 {
-    /// <summary> Static PLogger for the importer class so we can log stuff to the f8 console. </summary>
+    /// <summary> Static PLogger for the importer class so we can send logs directly to the f8 console. </summary>
     public static plog.Logger Log = new("Importer");
 
     /// <summary> Creates a mesh from a .obj file at the provided path. </summary>
@@ -80,7 +79,7 @@ public static class Importer
         return mesh;
     }
 
-    /// <summary> Reads an obj line by line and parses the data from it into managed C# objects. </summary>
+    /// <summary> Reads an obj line by line and parses the data from it into managed C# objects, automatically flipping the model on the X-axis so it works cleanly with Unity. </summary>
     public static void ExtractData(IEnumerable<string> lines, out List<Vector3> vertices, out List<Vector3> normals, out List<Vector2> UVs, out List<int> vertexIndices, out List<int> normalIndices, out List<int> uvIndices)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -110,7 +109,7 @@ public static class Importer
                 // (vt) uv's rawr >:3
                 else if (line[1] == 't')
                     UVs.Add(StringToVector2(line[3..]));
-            }
+                }
 
             // (f) faces/indicies :p
             else if (line[0] == 'f')
@@ -133,6 +132,10 @@ public static class Importer
                     }
                     while (++i < oldParts.Length - 1);
                 }
+
+                // reverse winding order
+                for (int t = 0; t < parts.Count; t += 3)
+                    (parts[t + 1], parts[t + 2]) = (parts[t + 2], parts[t + 1]);
 
                 // f 1 2 3
                 if (!line.Contains('/'))
@@ -164,15 +167,13 @@ public static class Importer
 
     #region Tools
 
-    /// <summary> Converts a string into a Vector3. </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 StringToVector3(string str)
     {
         string[] parts = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return new(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
+        return new(-float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
     }
 
-    /// <summary> Converts a string into a Vector2. </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 StringToVector2(string str)
     {
