@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public static class Importer
@@ -16,13 +15,17 @@ public static class Importer
     /// <summary> Creates a mesh from a .obj file at the provided path. </summary>
     public static Mesh CreateMesh(string path)
     {
+        // clean the path for this specific OS
+        path = path.Replace(['\\', '/'], Path.DirectorySeparatorChar);
+
         if (!path.EndsWith(".obj") || !File.Exists(path))
             throw new FileNotFoundException($"File at path {path} doesn't exist or isn't an obj file.");
+
 
         Log.Info($"Creating mesh from obj file at \"{path}\"");
         Stopwatch stopwatch = Stopwatch.StartNew();
 
-        Mesh result = CreateMesh(File.ReadAllLines(path));
+        Mesh result = __createMesh(path);
 
         stopwatch.Stop();
         Log.Info($"Mesh creation took a total of {stopwatch.Elapsed.TotalSeconds} seconds.");
@@ -30,12 +33,14 @@ public static class Importer
         return result;
     }
 
-    /// <summary> Creates a mesh from the lines of a .obj file. </summary>
-    public static Mesh CreateMesh(IEnumerable<string> lines)
+    /// <summary> Actual implemention of <see cref="CreateMesh(string)"/>. </summary>
+    internal static Mesh __createMesh(string path)
     {
         // go through each line and read the obj's data, variables starting with 'obj_' get modified b4 being fed into the unity mesh
-        ExtractData(lines, out List<Vector3> vertices, out List<Vector3> obj_normals, out List<Vector2> obj_UVs,
-                           out List<int> vertexIndices, out List<int> obj_normalIndices, out List<int> obj_uvIndices);
+        ExtractOBJData(path,
+            out List<Vector3> vertices,  out List<Vector3> obj_normals,   out List<Vector2> obj_UVs,
+            out List<int> vertexIndices, out List<int> obj_normalIndices, out List<int> obj_uvIndices
+        );
 
 
         // sort UV's and normals list for unity, since unity uses the same indices for vertices as for everything else]
@@ -80,7 +85,7 @@ public static class Importer
     }
 
     /// <summary> Reads an obj line by line and parses the data from it into managed C# objects, automatically flipping the model on the X-axis so it works cleanly with Unity. </summary>
-    public static void ExtractData(IEnumerable<string> lines, out List<Vector3> vertices, out List<Vector3> normals, out List<Vector2> UVs, out List<int> vertexIndices, out List<int> normalIndices, out List<int> uvIndices)
+    public static void ExtractOBJData(string objPath, out List<Vector3> vertices, out List<Vector3> normals, out List<Vector2> UVs, out List<int> vertexIndices, out List<int> normalIndices, out List<int> uvIndices)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
         vertices = [];
@@ -90,12 +95,12 @@ public static class Importer
         normalIndices = [];
         uvIndices = [];
 
-        foreach (string line in lines)
+        Dictionary<string, Material> materials = [];
+        foreach (string line in File.ReadAllLines(objPath))
         {
-            if (line[0] == '#')
+            if (line.Length == 0 || line[0] == '#')
                 continue;
 
-            //int spaceI = line.IndexOf(' ');
             if (line[0] == 'v')
             {
                 // (v) vertice positions :3
@@ -109,7 +114,7 @@ public static class Importer
                 // (vt) uv's rawr >:3
                 else if (line[1] == 't')
                     UVs.Add(StringToVector2(line[3..]));
-                }
+            }
 
             // (f) faces/indicies :p
             else if (line[0] == 'f')
@@ -159,27 +164,84 @@ public static class Importer
                 }
             }
 
+            // 
+            else if (line.StartsWith("usemtl"))
+            {
+
+            }
+
+            // loads a mtl, the doohickey which defines multiple materials and their textures/properties
+            else if (line.StartsWith("mtllib"))
+            {
+                string mtlPath = line[7..]; // line.SubString("mtllib ".Length)
+
+                if (!File.Exists(mtlPath))
+                {
+                    // try relative path
+                    mtlPath = Path.Combine(Path.GetDirectoryName(objPath), mtlPath);
+
+                    // if even the relative path doesnt work, give up lmfao
+                    if (!File.Exists(mtlPath))
+                        continue;
+                }
+
+
+                ExtractMTLData(mtlPath, ref materials);
+            }
         }
 
         stopwatch.Stop();
         Log.Info($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
     }
 
-    #region Tools
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3 StringToVector3(string str)
+    public static void ExtractMTLData(string mtlPath, ref Dictionary<string, Material> materials)
     {
-        string[] parts = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return new(-float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
-    }
+        Stopwatch stopwatch = Stopwatch.StartNew();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2 StringToVector2(string str)
-    {
-        string[] parts = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return new(float.Parse(parts[0]), float.Parse(parts[1]));
-    }
+        Material current = null;
+        foreach (string line in File.ReadAllLines(mtlPath))
+        {
+            if (line.Length == 0 || line[0] == '#')
+                continue;
 
-    #endregion
+            if (line.StartsWith("newmtl"))
+            {
+                current = new(DefaultReferenceManager.Instance.masterShader);
+                materials[line[7..]] = current;
+            }
+            else if (current != null)
+            {
+                if (line[0] == 'K')
+                {
+                    if (line[1] == 'a')
+                    {
+                        
+                    }
+                    else if (line[1] == 'd')
+                    {
+                        
+                    }
+                    else if (line[1] == 's')
+                    {
+                        
+                    }
+                }
+                else if (line[0] == 'N') // Ns
+                {
+                    
+                }
+                else if (line[0] == 'd')
+                {
+                    
+                }
+                else if (line[0] == 'm') // map_Kd
+                {
+                    
+                }
+            }
+        }
+
+        stopwatch.Stop();
+        Log.Info($".MTL mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
+    }
 }
