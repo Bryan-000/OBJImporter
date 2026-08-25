@@ -1,0 +1,1498 @@
+{
+  "name": "UKMaster",
+  "properties": [
+    {
+      "name": "_MainSettings",
+      "type": "Float",
+      "index": 0,
+      "description": "Main Settings",
+      "attributes": [
+        "UltraCategory"
+      ]
+    },
+    {
+      "name": "_Color",
+      "type": "Color",
+      "index": 1,
+      "description": "Color",
+      "attributes": [
+      ]
+    },
+    {
+      "name": "_MainTex",
+      "type": "Texture",
+      "index": 2,
+      "description": "Base (RGB)",
+      "attributes": [
+      ]
+    },
+    {
+      "name": "_VertexColors",
+      "type": "Float",
+      "index": 3,
+      "description": "Vertex Colors",
+      "attributes": [
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_VertexLighting",
+      "type": "Float",
+      "index": 4,
+      "description": "Vertex Lighting",
+      "attributes": [
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_VertexWarpScale",
+      "type": "Range",
+      "index": 5,
+      "description": "Vertex Warping Scalar",
+      "attributes": [
+      ]
+    },
+    {
+      "name": "_CullMode",
+      "type": "Float",
+      "index": 6,
+      "description": "Culling Mode",
+      "attributes": [
+        "Enum(UnityEngine.Rendering.CullMode)"
+      ]
+    },
+    {
+      "name": "_Fog",
+      "type": "Float",
+      "index": 7,
+      "description": "Fog Mode",
+      "attributes": [
+        "KeywordEnum(On, Off, Transparent)"
+      ]
+    },
+    {
+      "name": "_BlendMode",
+      "type": "Float",
+      "index": 8,
+      "description": "Blend Mode",
+      "attributes": [
+        "UltraHeader(Blending Options)",
+        "Enum(Opaque,0,Cutout,1,Transparent,2,Advanced,3)"
+      ]
+    },
+    {
+      "name": "_BlendOp",
+      "type": "Float",
+      "index": 9,
+      "description": "Blend Op",
+      "attributes": [
+        "ShowIf(_BlendMode(3))",
+        "Enum(UnityEngine.Rendering.BlendOp)"
+      ]
+    },
+    {
+      "name": "_SrcBlend",
+      "type": "Float",
+      "index": 10,
+      "description": "Source Blend",
+      "attributes": [
+        "ShowIf(_BlendMode(3))",
+        "Enum(UnityEngine.Rendering.BlendMode)"
+      ]
+    },
+    {
+      "name": "_DstBlend",
+      "type": "Float",
+      "index": 11,
+      "description": "Dest Blend",
+      "attributes": [
+        "ShowIf(_BlendMode(3))",
+        "Enum(UnityEngine.Rendering.BlendMode)"
+      ]
+    },
+    {
+      "name": "_BlendOp1",
+      "type": "Float",
+      "index": 12,
+      "description": "Blend Op Outline",
+      "attributes": [
+        "UltraHeader(Outline Blending Options)",
+        "ShowIf(_BlendMode(3))",
+        "Enum(UnityEngine.Rendering.BlendOp)"
+      ]
+    },
+    {
+      "name": "_SrcBlend1",
+      "type": "Float",
+      "index": 13,
+      "description": "Source Blend Outline",
+      "attributes": [
+        "ShowIf(_BlendMode(3))",
+        "Enum(UnityEngine.Rendering.BlendMode)"
+      ]
+    },
+    {
+      "name": "_DstBlend1",
+      "type": "Float",
+      "index": 14,
+      "description": "Dest Blend Outline",
+      "attributes": [
+        "EndUltraHeader",
+        "ShowIf(_BlendMode(3))",
+        "Enum(UnityEngine.Rendering.BlendMode)"
+      ]
+    },
+    {
+      "name": "_Opacity",
+      "type": "Range",
+      "index": 15,
+      "description": "Opacity",
+      "attributes": [
+        "ShowIf(_BlendMode(1, 2, 3))"
+      ]
+    },
+    {
+      "name": "_ZWrite",
+      "type": "Float",
+      "index": 16,
+      "description": "ZWrite",
+      "attributes": [
+        "ShowIf(_BlendMode(2, 3))",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_ForceOutlineBehind",
+      "type": "Float",
+      "index": 17,
+      "description": "Should Outline Objects Behind",
+      "attributes": [
+        "EndUltraHeader",
+        "ShowRenderQueue",
+        "ShowIf(_BlendMode(2, 3))",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_SurfaceSettings",
+      "type": "Float",
+      "index": 18,
+      "description": "Surface Settings",
+      "attributes": [
+        "UltraCategory"
+      ]
+    },
+    {
+      "name": "_SurfaceType",
+      "type": "Float",
+      "index": 19,
+      "description": "Surface Type",
+      "attributes": [
+        "Enum(SurfaceType)"
+      ]
+    },
+    {
+      "name": "_EnviroParticleColor",
+      "type": "Color",
+      "index": 20,
+      "description": "Environment Particle Color",
+      "attributes": [
+      ]
+    },
+    {
+      "name": "_StencilSettings",
+      "type": "Float",
+      "index": 21,
+      "description": "Stencil Settings",
+      "attributes": [
+        "UltraCategory"
+      ]
+    },
+    {
+      "name": "_Stencil",
+      "type": "Float",
+      "index": 22,
+      "description": "Stencil ID",
+      "attributes": [
+      ]
+    },
+    {
+      "name": "_StencilComp",
+      "type": "Float",
+      "index": 23,
+      "description": "Stencil Comparison",
+      "attributes": [
+        "Enum(UnityEngine.Rendering.CompareFunction)"
+      ]
+    },
+    {
+      "name": "_StencilOp",
+      "type": "Float",
+      "index": 24,
+      "description": "Stencil Operation",
+      "attributes": [
+        "Enum(UnityEngine.Rendering.StencilOp)"
+      ]
+    },
+    {
+      "name": "_StencilReadMask",
+      "type": "Float",
+      "index": 25,
+      "description": "Stencil Read Mask",
+      "attributes": [
+      ]
+    },
+    {
+      "name": "_StencilWriteMask",
+      "type": "Float",
+      "index": 26,
+      "description": "Stencil Write Mask",
+      "attributes": [
+      ]
+    },
+    {
+      "name": "_ShaderFeatures",
+      "type": "Float",
+      "index": 27,
+      "description": "Shader Features",
+      "attributes": [
+        "UltraCategory"
+      ]
+    },
+    {
+      "name": "_HelpBox",
+      "type": "Float",
+      "index": 28,
+      "description": "Hover over a Feature label for tooltips!",
+      "attributes": [
+        "HelpBox"
+      ]
+    },
+    {
+      "name": "ALLOW_MIPMAPS",
+      "type": "Float",
+      "index": 29,
+      "description": "Name(Allow Mipmaps) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "ANIMATED_TEXTURE",
+      "type": "Float",
+      "index": 30,
+      "description": "Name(Animated Texture) Tooltip(Scales and scrolls uv0 based on the provided frame count and framerate.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "BILLBOARD",
+      "type": "Float",
+      "index": 31,
+      "description": "Name(Billboard) Tooltip(Forces the object to look at the camera.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "CAUSTICS",
+      "type": "Float",
+      "index": 32,
+      "description": "Name(Caustics) Tooltip(Adds water caustics.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "CUSTOM_LIGHTMAP",
+      "type": "Float",
+      "index": 33,
+      "description": "Name(Custom Lightmap) Tooltip(Applies a baked lightmap texture.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "CUSTOM_COLORS",
+      "type": "Float",
+      "index": 34,
+      "description": "Name(Custom Colors) Tooltip(Controls weapon customization.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "CYBER_GRIND",
+      "type": "Float",
+      "index": 35,
+      "description": "Name(Cyber Grind) Tooltip(Controls the CyberGrind pulse visuals.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "BLOOD_FILLER",
+      "type": "Float",
+      "index": 36,
+      "description": "Name(Blood Filler) Tooltip(Used on 7-3 Blood Trees.\nFills upwards via scripting, using the noise texture to add detail.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "BLOOD_ABSORBER",
+      "type": "Float",
+      "index": 37,
+      "description": "Name(Blood Absorber) Tooltip(Used on 7-S.\nSupports receiving and washing of blood via scripting.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "BURNING",
+      "type": "Float",
+      "index": 38,
+      "description": "Name(Burning) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "DISTANCE_FADE",
+      "type": "Float",
+      "index": 39,
+      "description": "Name(Distance Fade) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "ENEMY",
+      "type": "Float",
+      "index": 40,
+      "description": "Name(Enemy) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "EMISSIVE",
+      "type": "Float",
+      "index": 41,
+      "description": "Name(Emissive) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "FADEABLE_AMBIENT",
+      "type": "Float",
+      "index": 42,
+      "description": "Name(Fadeable Ambient - Scripting Only) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "FRESNEL",
+      "type": "Float",
+      "index": 43,
+      "description": "Name(Fresnel) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "LIMBO_WALLS",
+      "type": "Float",
+      "index": 44,
+      "description": "Name(Limbo Walls) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "LIMBO_WATER_FADE",
+      "type": "Float",
+      "index": 45,
+      "description": "Name(Limbo Water Fade) Tooltip(For Limbo, fade out the material when a player or enemy is intersecting the surface.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "RADIANCE",
+      "type": "Float",
+      "index": 46,
+      "description": "Name(Radiance) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "RAIN",
+      "type": "Float",
+      "index": 47,
+      "description": "Name(Rain) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "REFLECTION",
+      "type": "Float",
+      "index": 48,
+      "description": "Name(Reflection) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "SCROLLING",
+      "type": "Float",
+      "index": 49,
+      "description": "Name(Scrolling) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "SPARKLES",
+      "type": "Float",
+      "index": 50,
+      "description": "Name(Sparkles) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "TRANSMISSION",
+      "type": "Float",
+      "index": 51,
+      "description": "Name( Transmission) Tooltip(For light passing through an object.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "VERTEX_BLENDING",
+      "type": "Float",
+      "index": 52,
+      "description": "Name(Vertex Blending) Tooltip(Red Channel blends between main texture/color and secondary texture/color.\nGreen Channel blends lighting contribution.)",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "VERTEX_DISPLACEMENT",
+      "type": "Float",
+      "index": 53,
+      "description": "Name(Vertex Displacement) Tooltip()",
+      "attributes": [
+        "KeywordToggle"
+      ]
+    },
+    {
+      "name": "_BillboardAxes",
+      "type": "Vector",
+      "index": 54,
+      "description": "Axes To Lock",
+      "attributes": [
+        "Keyword(BILLBOARD)"
+      ]
+    },
+    {
+      "name": "_DepthOffset",
+      "type": "Float",
+      "index": 55,
+      "description": "Depth Offset Scalar",
+      "attributes": [
+        "Keyword(BILLBOARD)"
+      ]
+    },
+    {
+      "name": "_Cells",
+      "type": "Texture",
+      "index": 56,
+      "description": "Cells",
+      "attributes": [
+        "Keyword(CAUSTICS)"
+      ]
+    },
+    {
+      "name": "_Perlin",
+      "type": "Texture",
+      "index": 57,
+      "description": "Perlin",
+      "attributes": [
+        "Keyword(CAUSTICS)"
+      ]
+    },
+    {
+      "name": "_CausticColor",
+      "type": "Color",
+      "index": 58,
+      "description": "Caustics Color",
+      "attributes": [
+        "Keyword(CAUSTICS)"
+      ]
+    },
+    {
+      "name": "_Scale",
+      "type": "Float",
+      "index": 59,
+      "description": "World Scale",
+      "attributes": [
+        "Keyword(CAUSTICS)"
+      ]
+    },
+    {
+      "name": "_Falloff",
+      "type": "Float",
+      "index": 60,
+      "description": "Mask Falloff",
+      "attributes": [
+        "Keyword(CAUSTICS)"
+      ]
+    },
+    {
+      "name": "_Speed",
+      "type": "Float",
+      "index": 61,
+      "description": "Speed",
+      "attributes": [
+        "Keyword(CAUSTICS)"
+      ]
+    },
+    {
+      "name": "_CausticMode",
+      "type": "Float",
+      "index": 62,
+      "description": "Caustic Mode",
+      "attributes": [
+        "Keyword(CAUSTICS)",
+        "Enum(Basic,0,Vertex Blended,1,Caustic Volumes,2)"
+      ]
+    },
+    {
+      "name": "_CausticsDirection",
+      "type": "Vector",
+      "index": 63,
+      "description": "Direction",
+      "attributes": [
+        "Keyword(CAUSTICS)"
+      ]
+    },
+    {
+      "name": "_ReflectionMask",
+      "type": "Texture",
+      "index": 64,
+      "description": "Reflection Mask",
+      "attributes": [
+        "Keyword(REFLECTION)"
+      ]
+    },
+    {
+      "name": "_CubeTex",
+      "type": "Texture",
+      "index": 65,
+      "description": "Cube Texture",
+      "attributes": [
+        "Keyword(CUSTOM_COLORS, REFLECTION)"
+      ]
+    },
+    {
+      "name": "_IDTex",
+      "type": "Texture",
+      "index": 66,
+      "description": "ID Texture",
+      "attributes": [
+        "Keyword(CUSTOM_COLORS)"
+      ]
+    },
+    {
+      "name": "_CustomColor1",
+      "type": "Color",
+      "index": 67,
+      "description": "Color 1",
+      "attributes": [
+        "Keyword(CUSTOM_COLORS)"
+      ]
+    },
+    {
+      "name": "_CustomColor2",
+      "type": "Color",
+      "index": 68,
+      "description": "Color 2",
+      "attributes": [
+        "Keyword(CUSTOM_COLORS)"
+      ]
+    },
+    {
+      "name": "_CustomColor3",
+      "type": "Color",
+      "index": 69,
+      "description": "Color 3",
+      "attributes": [
+        "Keyword(CUSTOM_COLORS)"
+      ]
+    },
+    {
+      "name": "_CubeMode",
+      "type": "Float",
+      "index": 70,
+      "description": "Cubemap Mode",
+      "attributes": [
+        "Keyword(CUSTOM_COLORS, REFLECTION)",
+        "Enum(Replace,0,Add,1)"
+      ]
+    },
+    {
+      "name": "_ReflectionStrength",
+      "type": "Float",
+      "index": 71,
+      "description": "Reflection Strength",
+      "attributes": [
+        "Keyword(CUSTOM_COLORS, REFLECTION)"
+      ]
+    },
+    {
+      "name": "_ReflectionFalloff",
+      "type": "Float",
+      "index": 72,
+      "description": "Reflection Falloff",
+      "attributes": [
+        "Keyword(CUSTOM_COLORS)"
+      ]
+    },
+    {
+      "name": "_LightMapTex",
+      "type": "Texture",
+      "index": 73,
+      "description": "Light Map Texture",
+      "attributes": [
+        "Keyword(CUSTOM_LIGHTMAP)"
+      ]
+    },
+    {
+      "name": "_BloodTex",
+      "type": "Texture",
+      "index": 74,
+      "description": "BloodTex",
+      "attributes": [
+        "Keyword(BLOOD_ABSORBER"
+      ]
+    },
+    {
+      "name": "_BloodNoiseTex",
+      "type": "Texture",
+      "index": 75,
+      "description": "Blood Noise Texture",
+      "attributes": [
+        "Keyword(BLOOD_FILLER)"
+      ]
+    },
+    {
+      "name": "_BurningTex",
+      "type": "Texture",
+      "index": 76,
+      "description": "Burning Texture",
+      "attributes": [
+        "Keyword(BURNING)"
+      ]
+    },
+    {
+      "name": "_EmissiveColor",
+      "type": "Color",
+      "index": 77,
+      "description": "Emissive Color",
+      "attributes": [
+        "Keyword(CYBER_GRIND, EMISSIVE)"
+      ]
+    },
+    {
+      "name": "_EmissiveTex",
+      "type": "Texture",
+      "index": 78,
+      "description": "Emissive Texture",
+      "attributes": [
+        "Keyword(CYBER_GRIND, EMISSIVE)"
+      ]
+    },
+    {
+      "name": "_EmissiveMask",
+      "type": "Float",
+      "index": 79,
+      "description": "Use Emissive Mask (Color Alpha)",
+      "attributes": [
+        "Keyword(EMISSIVE)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_EmissiveIntensity",
+      "type": "Float",
+      "index": 80,
+      "description": "Emissive Strength",
+      "attributes": [
+        "Keyword(CYBER_GRIND, EMISSIVE)"
+      ]
+    },
+    {
+      "name": "_EmissiveSaturation",
+      "type": "Float",
+      "index": 81,
+      "description": "Emissive Saturation",
+      "attributes": [
+        "Keyword(CYBER_GRIND, EMISSIVE)"
+      ]
+    },
+    {
+      "name": "_UseAlbedoAsEmissive",
+      "type": "Float",
+      "index": 82,
+      "description": "Use Albedo As Emissive",
+      "attributes": [
+        "Keyword(CYBER_GRIND, EMISSIVE)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_EmissiveReplaces",
+      "type": "Float",
+      "index": 83,
+      "description": "Emissive Replaces Instead of Adding to Underlying Color",
+      "attributes": [
+        "Keyword(CYBER_GRIND, EMISSIVE)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_FakeHDR",
+      "type": "Float",
+      "index": 84,
+      "description": "Fake HDR",
+      "attributes": [
+        "Keyword(EMISSIVE)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_HDRBoost",
+      "type": "Float",
+      "index": 85,
+      "description": "HDR Boost",
+      "attributes": [
+        "Keyword(EMISSIVE)",
+        "ShowIf(_FakeHDR)"
+      ]
+    },
+    {
+      "name": "_EmissiveToVertexColors",
+      "type": "Float",
+      "index": 86,
+      "description": "Vertex Colors Emissive Tint",
+      "attributes": [
+        "Keyword(EMISSIVE)"
+      ]
+    },
+    {
+      "name": "_UseCustomFogDists",
+      "type": "Float",
+      "index": 87,
+      "description": "Use Custom Fog Dists",
+      "attributes": [
+        "Keyword(EMISSIVE)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_EmissiveFogStart",
+      "type": "Float",
+      "index": 88,
+      "description": "Emissive Fog Start",
+      "attributes": [
+        "Keyword(CYBER_GRIND, EMISSIVE)",
+        "ShowIf(_UseCustomFogDists(1))"
+      ]
+    },
+    {
+      "name": "_EmissiveFogEnd",
+      "type": "Float",
+      "index": 89,
+      "description": "Emissive Fog End",
+      "attributes": [
+        "Keyword(CYBER_GRIND, EMISSIVE)",
+        "ShowIf(_UseCustomFogDists(1))"
+      ]
+    },
+    {
+      "name": "_GradientFalloff",
+      "type": "Float",
+      "index": 90,
+      "description": "Gradient Falloff",
+      "attributes": [
+        "Keyword(CYBER_GRIND)"
+      ]
+    },
+    {
+      "name": "_GradientScale",
+      "type": "Float",
+      "index": 91,
+      "description": "Gradient Scale",
+      "attributes": [
+        "Keyword(CYBER_GRIND)"
+      ]
+    },
+    {
+      "name": "_GradientSpeed",
+      "type": "Float",
+      "index": 92,
+      "description": "Gradient Speed",
+      "attributes": [
+        "Keyword(CYBER_GRIND)"
+      ]
+    },
+    {
+      "name": "_PCGamerMode",
+      "type": "Float",
+      "index": 93,
+      "description": "PC Gamer Mode",
+      "attributes": [
+        "Keyword(CYBER_GRIND)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_RainbowDensity",
+      "type": "Float",
+      "index": 94,
+      "description": "Rainbow Density",
+      "attributes": [
+        "Keyword(CYBER_GRIND)"
+      ]
+    },
+    {
+      "name": "_UseSoftFade",
+      "type": "Float",
+      "index": 95,
+      "description": "Use Soft Fade",
+      "attributes": [
+        "Keyword(DISTANCE_FADE, LIMBO_WATER_FADE)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_NearClip",
+      "type": "Float",
+      "index": 96,
+      "description": "Near Clip",
+      "attributes": [
+        "Keyword(DISTANCE_FADE, LIMBO_WATER_FADE)"
+      ]
+    },
+    {
+      "name": "_FarClip",
+      "type": "Float",
+      "index": 97,
+      "description": "Far Clip",
+      "attributes": [
+        "Keyword(DISTANCE_FADE, LIMBO_WATER_FADE)"
+      ]
+    },
+    {
+      "name": "_DitherTexture",
+      "type": "Texture",
+      "index": 98,
+      "description": "Dither Texture",
+      "attributes": [
+        "Keyword(DISTANCE_FADE, LIMBO_WATER_FADE)"
+      ]
+    },
+    {
+      "name": "_BlessedFalloff",
+      "type": "Float",
+      "index": 99,
+      "description": "Blessed Falloff",
+      "attributes": [
+        "Keyword(ENEMY)"
+      ]
+    },
+    {
+      "name": "_BlessedStrength",
+      "type": "Float",
+      "index": 100,
+      "description": "Blessed Strength",
+      "attributes": [
+        "Keyword(ENEMY)"
+      ]
+    },
+    {
+      "name": "_Blessedmoothness",
+      "type": "Range",
+      "index": 101,
+      "description": "Blessed Normal Smoothness",
+      "attributes": [
+        "Keyword(ENEMY)"
+      ]
+    },
+    {
+      "name": "_FresnelColor",
+      "type": "Color",
+      "index": 102,
+      "description": "Fresnel Color",
+      "attributes": [
+        "Keyword(FRESNEL)"
+      ]
+    },
+    {
+      "name": "_FresnelStrength",
+      "type": "Float",
+      "index": 103,
+      "description": "Fresnel Strength",
+      "attributes": [
+        "Keyword(FRESNEL)"
+      ]
+    },
+    {
+      "name": "_GlitchTex",
+      "type": "Texture",
+      "index": 104,
+      "description": "Glitch Texture",
+      "attributes": [
+        "Keyword(LIMBO_WALLS)"
+      ]
+    },
+    {
+      "name": "_ChromaticAberration",
+      "type": "Float",
+      "index": 105,
+      "description": "Chromatic Aberration",
+      "attributes": [
+        "Keyword(LIMBO_WALLS)"
+      ]
+    },
+    {
+      "name": "_GlitchBlockStrength",
+      "type": "Float",
+      "index": 106,
+      "description": "Glitch Block Strength",
+      "attributes": [
+        "Keyword(LIMBO_WALLS)"
+      ]
+    },
+    {
+      "name": "_GlitchBlockColor",
+      "type": "Float",
+      "index": 107,
+      "description": "Glitch Block Color",
+      "attributes": [
+        "Keyword(LIMBO_WALLS)"
+      ]
+    },
+    {
+      "name": "_TextureWarpingOverride",
+      "type": "Float",
+      "index": 108,
+      "description": "Texture Warping Override",
+      "attributes": [
+        "Keyword(LIMBO_WALLS)"
+      ]
+    },
+    {
+      "name": "_OffAxisPanelFeature",
+      "type": "Float",
+      "index": 109,
+      "description": "Allow Broken Panels (Requires NoBatch script)",
+      "attributes": [
+        "Keyword(LIMBO_WALLS)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_GlitchMode",
+      "type": "Float",
+      "index": 110,
+      "description": "GlitchMode",
+      "attributes": [
+        "Keyword(LIMBO_WALLS)",
+        "KeywordEnum(None, Small, Large)"
+      ]
+    },
+    {
+      "name": "_RainDarkening",
+      "type": "Color",
+      "index": 111,
+      "description": "Wet Darkening Color",
+      "attributes": [
+        "Keyword(RAIN)"
+      ]
+    },
+    {
+      "name": "_RainColor",
+      "type": "Color",
+      "index": 112,
+      "description": "Rain Color",
+      "attributes": [
+        "Keyword(RAIN)"
+      ]
+    },
+    {
+      "name": "_RainDrops",
+      "type": "Texture",
+      "index": 113,
+      "description": "Rain Drops",
+      "attributes": [
+        "Keyword(RAIN)"
+      ]
+    },
+    {
+      "name": "_RainTrails",
+      "type": "Texture",
+      "index": 114,
+      "description": "Rain Trails",
+      "attributes": [
+        "Keyword(RAIN)"
+      ]
+    },
+    {
+      "name": "_RainSpeed",
+      "type": "Float",
+      "index": 115,
+      "description": "Rain Speed",
+      "attributes": [
+        "Keyword(RAIN)"
+      ]
+    },
+    {
+      "name": "_RaindropsIntensity",
+      "type": "Float",
+      "index": 116,
+      "description": "Raindrops Intensity",
+      "attributes": [
+        "Keyword(RAIN)"
+      ]
+    },
+    {
+      "name": "_RainScale",
+      "type": "Float",
+      "index": 117,
+      "description": "Rain Scale",
+      "attributes": [
+        "Keyword(RAIN)"
+      ]
+    },
+    {
+      "name": "_WarpDetail",
+      "type": "Float",
+      "index": 118,
+      "description": "Warp Detail",
+      "attributes": [
+        "Keyword(RAIN)"
+      ]
+    },
+    {
+      "name": "_LocalOffsetRain",
+      "type": "Float",
+      "index": 119,
+      "description": "Use Local Space",
+      "attributes": [
+        "Keyword(RAIN)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_RainCeilingToggle",
+      "type": "Float",
+      "index": 120,
+      "description": "Hide Ceiling Drops",
+      "attributes": [
+        "Keyword(RAIN)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_LightingContribution",
+      "type": "Float",
+      "index": 121,
+      "description": "Lighting Contribution ",
+      "attributes": [
+        "Keyword(REFLECTION)"
+      ]
+    },
+    {
+      "name": "_ColorContribution",
+      "type": "Float",
+      "index": 122,
+      "description": "Color Contribution",
+      "attributes": [
+        "Keyword(REFLECTION)"
+      ]
+    },
+    {
+      "name": "_BuffTex",
+      "type": "Texture",
+      "index": 123,
+      "description": "Buff Tex (RGB)",
+      "attributes": [
+        "Keyword(RADIANCE)"
+      ]
+    },
+    {
+      "name": "_InflateStrength",
+      "type": "Float",
+      "index": 124,
+      "description": "Inflate Strength",
+      "attributes": [
+        "Keyword(RADIANCE)"
+      ]
+    },
+    {
+      "name": "_ScrollSpeed",
+      "type": "Vector",
+      "index": 125,
+      "description": "Custom Scroll Speed",
+      "attributes": [
+        "Keyword(SCROLLING)"
+      ]
+    },
+    {
+      "name": "_NoiseTex",
+      "type": "Texture",
+      "index": 126,
+      "description": "Noise",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_SpecularStrength",
+      "type": "Float",
+      "index": 127,
+      "description": "Reflection Strength",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_Scattering",
+      "type": "Float",
+      "index": 128,
+      "description": "Scattering",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_Saturation",
+      "type": "Float",
+      "index": 129,
+      "description": "Saturation",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_NoiseScale",
+      "type": "Float",
+      "index": 130,
+      "description": "UV Scale",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_Sharpness",
+      "type": "Float",
+      "index": 131,
+      "description": "Reflection Sharpness",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_FresnelBoost",
+      "type": "Float",
+      "index": 132,
+      "description": "Fresnel Boost",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_ScatterinNearFade",
+      "type": "Float",
+      "index": 133,
+      "description": "Near Fade",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_ScatterinFarFade",
+      "type": "Float",
+      "index": 134,
+      "description": "Far Fade",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_FadeCurve",
+      "type": "Float",
+      "index": 135,
+      "description": "Fade Gamma Curve",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_SparkleSpeed",
+      "type": "Float",
+      "index": 136,
+      "description": "Speed",
+      "attributes": [
+        "Keyword(SPARKLES)"
+      ]
+    },
+    {
+      "name": "_TransmissionColor",
+      "type": "Color",
+      "index": 137,
+      "description": "Transmission Color",
+      "attributes": [
+        "Keyword(TRANSMISSION)"
+      ]
+    },
+    {
+      "name": "_TransmissionAmount",
+      "type": "Float",
+      "index": 138,
+      "description": "Transmission Amount",
+      "attributes": [
+        "Keyword(TRANSMISSION)"
+      ]
+    },
+    {
+      "name": "_TransmissionMask",
+      "type": "Texture",
+      "index": 139,
+      "description": "Transmission Mask",
+      "attributes": [
+        "Keyword(TRANSMISSION)"
+      ]
+    },
+    {
+      "name": "_BlendColor",
+      "type": "Color",
+      "index": 140,
+      "description": "Secondary Color",
+      "attributes": [
+        "Keyword(VERTEX_BLENDING)"
+      ]
+    },
+    {
+      "name": "_BlendTex",
+      "type": "Texture",
+      "index": 141,
+      "description": "Secondary Texture",
+      "attributes": [
+        "Keyword(VERTEX_BLENDING)"
+      ]
+    },
+    {
+      "name": "_SecondarySurfaceType",
+      "type": "Float",
+      "index": 142,
+      "description": "Secondary Surface Type",
+      "attributes": [
+        "Keyword(VERTEX_BLENDING)",
+        "Enum(SurfaceType)"
+      ]
+    },
+    {
+      "name": "_SecondaryEnviroParticleColor",
+      "type": "Color",
+      "index": 143,
+      "description": "Secondray Environment Particle Color",
+      "attributes": [
+        "Keyword(VERTEX_BLENDING)"
+      ]
+    },
+    {
+      "name": "_VertexMode",
+      "type": "Float",
+      "index": 144,
+      "description": "Vertex Displacement Mode",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "Enum(Texture,0,UV Coordinate,1,Vertex Color,2,UV Texture,3)"
+      ]
+    },
+    {
+      "name": "_VertexNoiseTex",
+      "type": "Texture",
+      "index": 145,
+      "description": "Vertex Noise Texture Lookup",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "ShowIf(_VertexMode(0, 3))"
+      ]
+    },
+    {
+      "name": "_VertexNoiseScale",
+      "type": "Range",
+      "index": 146,
+      "description": "Vertex Distortion Density",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "ShowIf(_VertexMode(0, 1, 2))"
+      ]
+    },
+    {
+      "name": "_VertexNoiseSpeed",
+      "type": "Range",
+      "index": 147,
+      "description": "Vertex Distortion Speed",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "ShowIf(_VertexMode(0, 1, 2))"
+      ]
+    },
+    {
+      "name": "_UVNoiseScale",
+      "type": "Vector",
+      "index": 148,
+      "description": "UV Noise Scale ",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "ShowIf(_VertexMode(3))"
+      ]
+    },
+    {
+      "name": "_UVNoiseSpeed",
+      "type": "Vector",
+      "index": 149,
+      "description": "UV Noise Speed",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "ShowIf(_VertexMode(3))"
+      ]
+    },
+    {
+      "name": "_VertexNoiseAmplitude",
+      "type": "Range",
+      "index": 150,
+      "description": "Vertex Distortion Amplitude",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)"
+      ]
+    },
+    {
+      "name": "_VertexScale",
+      "type": "Range",
+      "index": 151,
+      "description": "Vertex Inflation Scale",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)"
+      ]
+    },
+    {
+      "name": "_FlowDirection",
+      "type": "Color",
+      "index": 152,
+      "description": "Vertex Distortion Flow Direction (Normalized XYZ)",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "ShowIf(_VertexMode(0))"
+      ]
+    },
+    {
+      "name": "_ReverseFlow",
+      "type": "Float",
+      "index": 153,
+      "description": "Reverse Flow",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_PreventClipping",
+      "type": "Float",
+      "index": 154,
+      "description": "Prevent Clipping",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_VColStrength",
+      "type": "Float",
+      "index": 155,
+      "description": "Green Channel Controls Strength",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "ShowIf(_VertexMode(0, 2))",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_LocalOffset",
+      "type": "Float",
+      "index": 156,
+      "description": "Use Local Space Offset",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "ShowIf(_VertexMode(0))",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_RecalculateNormals",
+      "type": "Float",
+      "index": 157,
+      "description": "Recalculate Normals",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "Toggle"
+      ]
+    },
+    {
+      "name": "_NormalOffsetScale",
+      "type": "Float",
+      "index": 158,
+      "description": "Normal Offset Scale",
+      "attributes": [
+        "Keyword(VERTEX_DISPLACEMENT)",
+        "ShowIf(_RecalculateNormals)"
+      ]
+    },
+    {
+      "name": "_ForceSecondary",
+      "type": "Float",
+      "index": 159,
+      "description": "Force Secondary",
+      "attributes": [
+      ]
+    },
+    {
+      "name": "_BatchingID",
+      "type": "Int",
+      "index": 160,
+      "description": "Batching ID",
+      "attributes": [
+      ]
+    },
+    {
+      "name": "_Outline",
+      "type": "Float",
+      "index": 161,
+      "description": "Assist Outline",
+      "attributes": [
+      ]
+    }
+  ]
+}

@@ -17,7 +17,7 @@
 			https://nuget.bepinex.dev/v3/index.json
 		</RestoreAdditionalProjectSources>
 	</PropertyGroup>
-
+	
 	<ItemGroup>
 		<!-- Nuget Packages -->
 		<PackageReference Include="BepInEx.Core" Version="5.4.21" />
@@ -31,6 +31,10 @@
 		<Reference Include="PLog lesbiab" Publicize="true">
 			<HintPath>$(ManagedPath)\plog.dll</HintPath>
 		</Reference>
+    
+    <Reference Include="Newtonsoft.Json" Publicize="true">
+      <HintPath>$(ManagedPath)\Newtonsoft.Json.dll</HintPath>
+    </Reference>
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="Build">
