@@ -13,13 +13,21 @@ public static class Importer
     private static readonly plog.Logger Log = new("Importer");
 
     /// <summary> Creates a GameObject with a <see cref="MeshFilter"/> and <see cref="MeshRenderer"/> from a .obj file at the provided path. </summary>
-    public static GameObject CreateGameObject(string path, Vector3? position = null, Quaternion? rotation = null, Transform parent = null)
+    public static GameObject CreateGameObject(string path)
     {
         (Mesh mesh, Material[] mats) = CreateMesh(path);
 
         GameObject obj = new(mesh.name);
         obj.AddComponent<MeshFilter>().sharedMesh = mesh;
         obj.AddComponent<MeshRenderer>().sharedMaterials = mats;
+
+        return obj;
+    }
+
+    /// <summary> Creates a GameObject with a <see cref="MeshFilter"/> and <see cref="MeshRenderer"/> from a .obj file at the provided path. </summary>
+    public static GameObject CreateGameObject(string path, Vector3? position = null, Quaternion? rotation = null, Transform parent = null)
+    {
+        GameObject obj = CreateGameObject(path);
 
         Transform trans = obj.transform;
         if (position.HasValue) trans.position = position.Value;
