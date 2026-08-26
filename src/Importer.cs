@@ -7,15 +7,42 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
+/// <summary> Helper for parsing .obj files into meshes/GameObjects. </summary>
 public static class Importer
 {
     /// <summary> Static PLogger for the importer class so we can send logs directly to the f8 console. </summary>
     private static readonly plog.Logger Log = new("Importer");
 
-    /// <summary> Creates a GameObject with a <see cref="MeshFilter"/> and <see cref="MeshRenderer"/> from a .obj file at the provided path. </summary>
-    public static GameObject CreateGameObject(string path)
+    /// <summary> Creates a GameObject from an .obj file with optional transform parameters. </summary>
+    public static GameObject CreateGameObject(string path, Vector3? position = null, Quaternion? rotation = null, Transform parent = null) =>
+        CreateGameObject(path, false, position, rotation, parent);
+
+    /// <summary> Creates a GameObject from an .obj file with optional collision and transform parameters. </summary>
+    public static GameObject CreateGameObject(string path, bool hasCollision = false, Vector3? position = null, Quaternion? rotation = null, Transform parent = null) =>
+        CreateGameObject(path, hasCollision, position ?? Vector3.zero, rotation ?? Quaternion.identity, parent);
+
+    /// <summary> Creates a GameObject from an .obj file and sets its collision and transform. </summary>
+    public static GameObject CreateGameObject(string path, bool hasCollision, Vector3 position, Quaternion rotation, Transform parent)
     {
-        (Mesh mesh, Material[] mats) = CreateMesh(path);
+        GameObject obj = CreateGameObject(path, out Mesh mesh, out _);
+        if (hasCollision)
+            obj.AddComponent<MeshFilter>().sharedMesh = mesh;
+
+        Transform trans = obj.transform;
+        trans.position = position;
+        trans.rotation = rotation;
+        trans.SetParent(parent);
+
+        return obj;
+    }
+
+    /// <summary> Creates a GameObject from an .obj file. </summary>
+    public static GameObject CreateGameObject(string path) => CreateGameObject(path, out _, out _);
+
+    /// <summary> Creates a GameObject from an .obj file and outputs its mesh and materials. </summary>
+    public static GameObject CreateGameObject(string path, out Mesh mesh, out Material[] mats)
+    {
+        (mesh, mats) = CreateMesh(path);
 
         GameObject obj = new(mesh.name);
         obj.AddComponent<MeshFilter>().sharedMesh = mesh;
@@ -24,20 +51,7 @@ public static class Importer
         return obj;
     }
 
-    /// <summary> Creates a GameObject with a <see cref="MeshFilter"/> and <see cref="MeshRenderer"/> from a .obj file at the provided path. </summary>
-    public static GameObject CreateGameObject(string path, Vector3? position = null, Quaternion? rotation = null, Transform parent = null)
-    {
-        GameObject obj = CreateGameObject(path);
-
-        Transform trans = obj.transform;
-        if (position.HasValue) trans.position = position.Value;
-        if (rotation.HasValue) trans.rotation = rotation.Value;
-        if (parent) trans.parent = parent;
-
-        return obj;
-    }
-
-    /// <summary> Creates a mesh from a .obj file at the provided path. </summary>
+    /// <summary> Creates a mesh and materials from an .obj file. </summary>
     public static (Mesh, Material[]) CreateMesh(string path)
     {
         // clean the path for this specific OS
@@ -47,18 +61,21 @@ public static class Importer
             throw new FileNotFoundException($"File at '{path}' doesn't exist or isn't an obj file.");
 
 
-        Log.Info($"Creating mesh from obj file at '{path}'");
+        Debug($"Creating mesh from obj file at '{path}'");
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         _createMesh(path, out Mesh result, out List<Material> materials);
 
         stopwatch.Stop();
-        Log.Info($"Mesh creation took a total of {stopwatch.Elapsed.TotalSeconds} seconds.");
+        Debug($"Mesh creation took a total of {stopwatch.Elapsed.TotalSeconds} seconds.");
 
         return (result, [.. materials]);
     }
 
     #region Internal bullshit please dont read this code its ass i hate it
+
+    [Conditional("Debug")]
+    private static void Debug(string message) => Log.Info(message);
 
     internal static void _createMesh(string path, out Mesh mesh, out List<Material> materials)
     {
@@ -220,7 +237,7 @@ public static class Importer
         }
 
         stopwatch.Stop();
-        Log.Info($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
+        Debug($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
     }
 
     internal static void _extractMTLData(string mtlPath, ref Dictionary<string, Material> materials)
@@ -269,7 +286,7 @@ public static class Importer
         }
 
         stopwatch.Stop();
-        Log.Info($".MTL mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
+        Debug($".MTL mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
     }
 
     #endregion

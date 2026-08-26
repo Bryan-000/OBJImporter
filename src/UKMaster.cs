@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-#pragma warning disable RCS1203
+#pragma warning disable RCS1203, CS9113
 
 // it stands for ultrakill master shader
 public static class UKMaster
@@ -39,4 +39,4 @@ public static class UKMaster
     class TypeAttribute(ShaderPropertyType _) : Attribute;
 }
 
-#pragma warning restore RCS1203
+#pragma warning restore RCS1203, CS9113

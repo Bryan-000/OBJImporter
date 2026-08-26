@@ -5,7 +5,7 @@ using GameConsole;
 using HarmonyLib;
 
 [BepInPlugin(Information.GUID, Information.Name, Information.Version)]
-public class Plugin : BaseUnityPlugin
+public class OBJPlugin : BaseUnityPlugin
 {
     public static class Information
     {
@@ -16,10 +16,13 @@ public class Plugin : BaseUnityPlugin
 
     /// <summary> :33333 </summary>
     public void Awake() =>
-        new Harmony(Information.GUID).PatchAll(GetType());
+        Harmony.CreateAndPatchAll(GetType(), Information.GUID);
 
-    /// <summary> Adds our command to the F8 console after it's done initalizing. </summary>
+    /// <summary> Adds our command to the F8 console when it's created. </summary>
     [HarmonyPostfix] [HarmonyPatch(typeof(Console), "Awake")]
-    public static void AddCmdOnConsoleLoad(Console __instance) =>
+    public static void AddCmdOnConsoleLoad(Console __instance)
+    {
         __instance.RegisterCommand(new ImportCommand());
+        __instance.RegisterCommand(new ImportBenchmarkCommand());
+    }
 }
