@@ -14,6 +14,9 @@ public static class UKMaster
     [Type(ShaderPropertyType.Color)]
     public static readonly int _Color = Shader.PropertyToID("_Color");
 
+    [Type(ShaderPropertyType.Texture)]
+    public static readonly int _MainTex = Shader.PropertyToID("_MainTex");
+
     [Type(ShaderPropertyType.Float)]
     [Enum("Opaque: 0, Cutout: 1, Transparent: 2, Advanced: 3")]
     public static readonly int _BlendMode = Shader.PropertyToID("_BlendMode");
@@ -32,7 +35,9 @@ public static class UKMaster
 
     public static readonly LocalKeyword
         ALPHA_TEST = new(MasterShader, "ALPHA_TEST"),
-        TRANSPARENCY = new(MasterShader, "TRANSPARENCY");
+        TRANSPARENCY = new(MasterShader, "TRANSPARENCY"),
+        VERTEX_LIGHTING = new(MasterShader, "VERTEX_LIGHTING"),
+        _FOG_ON = new(MasterShader, "_FOG_ON");
 
 
     class EnumAttribute(string _) : Attribute;

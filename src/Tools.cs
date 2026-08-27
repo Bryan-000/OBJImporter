@@ -45,16 +45,16 @@ internal static class Tools
     {
         public void ChangeBlendModeToTransparent()
         {
-            if (mat.HasProperty(UKMaster._Opacity) && Mathf.Approximately(mat.GetFloat(UKMaster._Opacity), 0.5f))
-                mat.SetFloat(UKMaster._Opacity, 1);
+            mat.SetFloat(UKMaster._BlendMode, 2);
 
             mat.SetOverrideTag("RenderType", "Transparent");
             mat.SetInt(UKMaster._SrcBlend, (int)BlendMode.SrcAlpha);
             mat.SetInt(UKMaster._DstBlend, (int)BlendMode.OneMinusSrcAlpha);
-            //mat.SetFloat(UKMaster._ZWrite, 0);
 
             mat.DisableKeyword(UKMaster.ALPHA_TEST);
             mat.EnableKeyword(UKMaster.TRANSPARENCY);
+            mat.EnableKeyword(UKMaster.VERTEX_LIGHTING);
+            mat.EnableKeyword(UKMaster._FOG_ON);
 
             mat.renderQueue = (int)RenderQueue.Transparent;
         }

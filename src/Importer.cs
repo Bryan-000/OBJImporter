@@ -271,7 +271,7 @@ public static class Importer
                     Texture2D tex = new(0, 0);
                     tex.LoadImage(File.ReadAllBytes(texPath));
 
-                    current.SetTexture("_MainTex", tex);
+                        current.SetTexture(UKMaster._MainTex, tex);
                 }
             }
 
