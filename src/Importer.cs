@@ -236,6 +236,15 @@ public static class Importer
             }
         }
 
+        // if there arent any materials, make a blank one
+        if (outMaterials.Count == 0)
+        {
+            Material blank = new(UKMaster.shader);
+            blank.ChangeBlendModeToTransparent();
+
+            outMaterials.Add(blank);
+        }
+
         stopwatch.Stop();
         Debug($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
     }
