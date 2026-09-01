@@ -1,10 +1,14 @@
 ﻿namespace OBJImporter;
 
+using OBJImporter.Tools;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 /// <summary> Helper for parsing .obj files into meshes/GameObjects. </summary>
@@ -14,17 +18,17 @@ public static class Importer
     private static readonly plog.Logger Log = new("Importer");
 
     /// <summary> Creates a GameObject from an .obj file with optional transform parameters. </summary>
-    public static GameObject CreateGameObject(string path, Vector3? position = null, Quaternion? rotation = null, Transform parent = null) =>
-        CreateGameObject(path, false, position, rotation, parent);
+    public static GameObject CreateGameObject(string path, Vector3? position = null, Quaternion? rotation = null, Transform parent = null, bool lighting = false) =>
+        CreateGameObject(path, false, position, rotation, parent, lighting);
 
     /// <summary> Creates a GameObject from an .obj file with optional collision and transform parameters. </summary>
-    public static GameObject CreateGameObject(string path, bool hasCollision = false, Vector3? position = null, Quaternion? rotation = null, Transform parent = null) =>
-        CreateGameObject(path, hasCollision, position ?? Vector3.zero, rotation ?? Quaternion.identity, parent);
+    public static GameObject CreateGameObject(string path, bool hasCollision = false, Vector3? position = null, Quaternion? rotation = null, Transform parent = null, bool lighting = false) =>
+        CreateGameObject(path, hasCollision, position ?? Vector3.zero, rotation ?? Quaternion.identity, parent, lighting);
 
     /// <summary> Creates a GameObject from an .obj file and sets its collision and transform. </summary>
-    public static GameObject CreateGameObject(string path, bool hasCollision, Vector3 position, Quaternion rotation, Transform parent)
+    public static GameObject CreateGameObject(string path, bool hasCollision, Vector3 position, Quaternion rotation, Transform parent, bool lighting = false)
     {
-        GameObject obj = CreateGameObject(path, out Mesh mesh, out _);
+        GameObject obj = CreateGameObject(path, out Mesh mesh, out _, lighting);
         if (hasCollision)
             obj.AddComponent<MeshFilter>().sharedMesh = mesh;
 
@@ -37,12 +41,12 @@ public static class Importer
     }
 
     /// <summary> Creates a GameObject from an .obj file. </summary>
-    public static GameObject CreateGameObject(string path) => CreateGameObject(path, out _, out _);
+    public static GameObject CreateGameObject(string path, bool lighting = false) => CreateGameObject(path, out _, out _, lighting);
 
     /// <summary> Creates a GameObject from an .obj file and outputs its mesh and materials. </summary>
-    public static GameObject CreateGameObject(string path, out Mesh mesh, out Material[] mats)
+    public static GameObject CreateGameObject(string path, out Mesh mesh, out Material[] mats, bool lighting = false)
     {
-        (mesh, mats) = CreateMesh(path);
+        (mesh, mats) = CreateMesh(path, lighting);
 
         GameObject obj = new(mesh.name);
         obj.AddComponent<MeshFilter>().sharedMesh = mesh;
@@ -52,7 +56,7 @@ public static class Importer
     }
 
     /// <summary> Creates a mesh and materials from an .obj file. </summary>
-    public static (Mesh, Material[]) CreateMesh(string path)
+    public static (Mesh, Material[]) CreateMesh(string path, bool lighting = false)
     {
         // clean the path for this specific OS
         path = path.Replace(['\\', '/'], Path.DirectorySeparatorChar);
@@ -64,7 +68,7 @@ public static class Importer
         Debug($"Creating mesh from obj file at '{path}'");
         Stopwatch stopwatch = Stopwatch.StartNew();
 
-        _createMesh(path, out Mesh result, out List<Material> materials);
+        _createMesh(path, out Mesh result, out List<Material> materials, lighting);
 
         stopwatch.Stop();
         Debug($"Mesh creation took a total of {stopwatch.Elapsed.TotalSeconds} seconds.");
@@ -74,10 +78,11 @@ public static class Importer
 
     #region Internal bullshit please dont read this code its ass i hate it
 
-    [Conditional("Debug")]
-    private static void Debug(string message) => Log.Info(message);
+    //[Conditional("Debug")]
+    internal static void Debug(string message) =>
+        Log.Info(message);
 
-    internal static void _createMesh(string path, out Mesh mesh, out List<Material> materials)
+    internal static void _createMesh(string path, out Mesh mesh, out List<Material> materials, bool lighting = false)
     {
         // go through each line and read the obj's data, variables starting with 'obj_' get modified b4 being fed into the unity mesh
         _extractOBJData(path,
@@ -85,6 +90,15 @@ public static class Importer
             out List<List<int>> subMeshIndices, out List<int> obj_normalIndices, out List<int> obj_uvIndices,
             out materials
         );
+
+
+        if (lighting)
+        {
+            foreach (Material mat in materials)
+            {
+                mat.EnableKeyword(UKMaster.VERTEX_LIGHTING);
+            }
+        }
 
 
         List<int> totalVertexIndices = [];
@@ -95,15 +109,25 @@ public static class Importer
         // sort UV's and normals list for unity, since unity uses the same indices for vertices as for everything else]
         Vector2[] UVs = new Vector2[vertices.Count];
         Vector3[] normals = new Vector3[vertices.Count];
-        if (obj_UVs.Count != 0 || obj_normals.Count != 0)
+        if (obj_UVs.Count != 0 && obj_normals.Count != 0)
         {
             for (int i = 0; i < totalVertexIndices.Count; i++)
             {
                 // take the uv at obj_uvIndice in obj_uv's and set the uv at vertexIndice in uv's to that obj_uv
                 // so that when unity takes the vertexIndice and looks in the uv's for the uv at that vertexIndice, it gets the right one
-                if (obj_UVs.Count != 0) UVs[totalVertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
-                if (obj_normals.Count != 0) normals[totalVertexIndices[i]] = obj_normals[obj_normalIndices[i]];
+                UVs[totalVertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
+                normals[totalVertexIndices[i]] = obj_normals[obj_normalIndices[i]];
             }
+        }
+        else if (obj_UVs.Count != 0)
+        {
+            for (int i = 0; i < totalVertexIndices.Count; i++)
+                UVs[totalVertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
+        }
+        else if (obj_normals.Count != 0)
+        {
+            for (int i = 0; i < totalVertexIndices.Count; i++)
+                normals[totalVertexIndices[i]] = obj_normals[obj_normalIndices[i]];
         }
 
 
@@ -146,93 +170,113 @@ public static class Importer
 
         int currentSubMesh = 0;
         Dictionary<string, Material> materials = [];
-        foreach (string line in File.ReadLines(objPath))
+        List<(int v, int u, int n)> faceVertices = [];
+        foreach (ReadOnlySpan<char> line in File.ReadLines(objPath))
         {
             if (line.Length == 0 || line[0] == '#')
                 continue;
 
-            if (line[0] == 'v')
+            switch (line[0])
             {
-                // (v) vertice positions :3
-                if (line[1] == ' ')
-                    vertices.Add(IStringToVector3(line[2..]));
-
-                // (vn) normals meow
-                else if (line[1] == 'n')
-                    normals.Add(IStringToVector3(line[3..]));
-
-                // (vt) uv's rawr >:3
-                else if (line[1] == 't')
-                    UVs.Add(StringToVector2(line[3..]));
-            }
-
-            // (f) faces/indicies :p
-            else if (line[0] == 'f')
-            {
-                List<string> parts = [.. line[2..].Split(' ', StringSplitOptions.RemoveEmptyEntries)];
-
-                // triangle strip faces AAAAAAAAAAAAAAA
-                if (parts.Count > 3)
-                {
-                    // reorder the parts list to make multiple triangles out of a strip
-                    string[] oldParts = [.. parts];
-
-                    parts.Clear();
-                    for (int i = 1; i < oldParts.Length - 1; i++)
+                // vertices, normals, uv's
+                // uses I_ToVector3 to flip the models on the x-axis cuz unity cords and .obj cords are different
+                case 'v':
+                    switch (line[1])
                     {
-                        parts.Add(oldParts[0]);
-                        parts.Add(oldParts[i]);
-                        parts.Add(oldParts[i + 1]);
+                        // (v) vertice positions :3
+                        case ' ':
+                            Vector3 vertex = Parser.I_ToVector3(line[2..], out int cursor);
+                            if (Parser.TryReadFloat(line, ref cursor, out float scaler))
+                                vertex *= scaler;
+
+                            vertices.Add(Parser.I_ToVector3(line[2..]));
+                        break;
+
+                        // (vn) normals meow
+                        case 'n':
+                            normals.Add(Parser.I_ToVector3(line[3..]));
+                        break;
+
+                        // (vt) uv's rawr >:3
+                        case 't':
+                            UVs.Add(Parser.ToVector2(line[3..]));
+                        break;
                     }
-                }
+                break;
 
-                // reverse winding order
-                for (int t = 0; t < parts.Count; t += 3)
-                    (parts[t + 1], parts[t + 2]) = (parts[t + 2], parts[t + 1]);
+                // (f) faces/indicies :p
+                case 'f':
+                    List<(int v, int? vt, int? vn)> parts = new(3);
+                    bool justVertex = !Parser.Contains(line, '/');
 
-                // f 1 2 3
-                if (!line.Contains('/'))
-                {
-                    vertexIndices[currentSubMesh].AddRange(parts.Select(i => int.Parse(i) - 1));
-                }
-                else
-                {
-                    // f v1/u1/n1 v2/u2/n2 v3/u3/n3
-                    foreach (string part in parts)
+                    // parse the line
+                    int position = 2;
+                    while (Parser.SeekAndSlice(line, ' ', ref position, out var sliceStr))
                     {
-                        string[] segmentsmeow = part.Split('/');
+                        if (justVertex)
+                        {
+                            parts.Add((int.Parse(sliceStr), null, null));
+                        }
+                        else
+                        {
+                            int slicePos = 0;
+                            if (Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vStr))
+                            {
+                                // unity indices start from 0 while .obj's start from 1, so remove 1
+                                int v = Parser.ParseInt(vStr)-1;
 
-                        vertexIndices[currentSubMesh].Add(int.Parse(segmentsmeow[0]) - 1); // vertex indicies MUST exist
+                                int? vt = Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vtStr)
+                                    ? Parser.ParseInt(vtStr)-1 : null;
 
-                        // either UV indices or normal indicies could maybe not exist if this model doesnt have uv's or normals
-                        // and in those cases it just does `f v1//n1 v2//n2 v3//n3` or `f v1/u1/ v2/u2/ v3/u3/`
-                        if (int.TryParse(segmentsmeow[1], out int uI)) uvIndices.Add(uI - 1);
-                        if (int.TryParse(segmentsmeow[2], out int nI)) normalIndices.Add(nI - 1);
+                                int? vn = Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vnStr)
+                                    ? Parser.ParseInt(vnStr)-1 : null;
+
+                                parts.Add((v, vt, vn));
+                            }
+                        }
                     }
-                }
-            }
 
-            // 
-            else if (line.StartsWith("usemtl"))
-            {
-                if (outMaterials.Count != 0)
-                {
-                    currentSubMesh++;
-                    vertexIndices.Add([]);
-                }
+                    // add to the lists while reversing the winding order since we flip the models on the x-axis
+                    if (parts.Count < 3)
+                    {
+                        AddToIndices(parts[0], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                        AddToIndices(parts[2], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                        AddToIndices(parts[1], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                    }
+                    else
+                    {
+                        // convert strip faces into multiple triangles before adding them to the lists
+                        for (int i = 1; i < parts.Count - 1; i++)
+                        {
+                            AddToIndices(parts[0], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                            AddToIndices(parts[i + 1], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                            AddToIndices(parts[i], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                        }
+                    }
+                break;
 
-                string mtlName = line[7..];
-                outMaterials.Add(materials[mtlName]);
-            }
+                // sets up the next indices to be in a diff submesh
+                // and sets right material to be used for those
+                case 'u' when line.StartsWith("usemtl"):
+                    if (outMaterials.Count != 0)
+                    {
+                        currentSubMesh++;
+                        vertexIndices.Add([]);
+                    }
 
-            // loads a mtl, the doohickey which defines multiple materials and their textures + properties
-            else if (line.StartsWith("mtllib"))
-            {
-                string mtlPath = Path.GetFullPath(line[7..], Path.GetDirectoryName(objPath));
+                    string mtlName = line[7..].ToString();
+                    outMaterials.Add(materials[mtlName]);
+                break;
 
-                stopwatch.Stop();
-                _extractMTLData(mtlPath, ref materials);
-                stopwatch.Start();
+                // loads a mtl, the doohickey which defines multiple materials and their textures + properties
+                case 'm' when line.StartsWith("mtllib"):
+                    string mtlPath = Path.GetFullPath(line[7..].ToString(), Path.GetDirectoryName(objPath));
+
+                    stopwatch.Stop();
+                    if (mtlPath.EndsWith(".mtl") && File.Exists(mtlPath))
+                        _extractMTLData(mtlPath, ref materials);
+                    stopwatch.Start();
+                break;
             }
         }
 
@@ -249,53 +293,86 @@ public static class Importer
         Debug($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
     }
 
+    private static void AddToIndices((int v, int? vt, int? vn) vertex, List<int> subVertexIndices, List<int> uvIndices, List<int> normalIndices)
+    {
+        subVertexIndices.Add(vertex.v);
+        if (vertex.vt.HasValue) uvIndices.Add(vertex.vt.Value);
+        if (vertex.vn.HasValue) normalIndices.Add(vertex.vn.Value);
+    }
+
     internal static void _extractMTLData(string mtlPath, ref Dictionary<string, Material> materials)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         Material current = null;
-        foreach (string line in File.ReadLines(mtlPath))
+        foreach (ReadOnlySpan<char> line in File.ReadLines(mtlPath))
         {
             if (line.Length == 0 || line[0] == '#')
                 continue;
 
             if (current != null)
             {
-                if (line[0] == 'K' && line[1] == 'd') // color
+                switch (line[0])
                 {
-                    (float r, float g, float b) = StringToFloat3(line[3..]);
+                    // color
+                    case 'K' when line[1] == 'd':
+                        current.SetColor(UKMaster._Color, Parser.ToColor(line[3..]));
+                    break;
 
-                    current.SetColor(UKMaster._Color, new(r, g, b));
-                }
-                else if (line[0] == 'd') // opacity
-                {
-                    float opacity = float.Parse(line[2..]);
+                    // opacity
+                    case 'd':
+                        current.SetFloat(UKMaster._Opacity, float.Parse(line[2..]));
+                    break;
 
-                    current.SetFloat(UKMaster._Opacity, opacity);
-                }
-                else if (line[0] == 'm' && line.StartsWith("map_Kd")) // texture
-                {
-                    string texPath = Path.GetFullPath(line[7..], Path.GetDirectoryName(mtlPath));
+                    // inverse opacity
+                    case 'T' when line[1] == 'r':
+                        current.SetFloat(UKMaster._Opacity, 1f - float.Parse(line[2..]));
+                    break;
 
-                    Texture2D tex = new(0, 0);
-                    tex.LoadImage(File.ReadAllBytes(texPath));
+                    // texture
+                    case 'm' when line.StartsWith("map_Kd"):
+                        string texPath = Path.GetFullPath(line[7..].ToString(), Path.GetDirectoryName(mtlPath));
 
-                        current.SetTexture(UKMaster._MainTex, tex);
+                        OBJPlugin.Instance.StartCoroutine(AssignTextureAsync(current, texPath));
+                    break;
                 }
             }
 
             if (line[0] == 'n' && line.StartsWith("newmtl"))
             {
-                current = new(DefaultReferenceManager.Instance.masterShader);
+                current = new(UKMaster.shader);
                 current.ChangeBlendModeToTransparent();
-                current.name = line[7..];
 
+                current.name = line[7..].ToString();
                 materials[current.name] = current;
             }
         }
 
         stopwatch.Stop();
         Debug($".MTL mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
+    }
+
+    private static IEnumerator AssignTextureAsync(Material target, string texPath)
+    {
+        Task<byte[]> readFile = Task.Run(() => File.ReadAllBytesAsync(texPath));
+        while (!readFile.IsCompleted)
+            yield return null;
+
+        if (readFile.IsCompletedSuccessfully)
+        {
+            Texture2D tex = new(0, 0);
+            tex.name = Path.GetFileName(texPath);
+
+            if (tex.LoadImage(readFile.Result))
+                target.SetTexture(UKMaster._MainTex, tex);
+        }
+        else
+        {
+            UnityEngine.Debug.LogException(new(
+                $"Failed to load texture at path '{texPath}', status: '{readFile.Status}'.",
+                readFile.Exception
+            ));
+        }
     }
 
     #endregion

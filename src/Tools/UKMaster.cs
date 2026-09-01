@@ -1,15 +1,17 @@
-﻿namespace OBJImporter;
+﻿namespace OBJImporter.Tools;
 
 using System;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
 
 #pragma warning disable RCS1203, CS9113
 
 // it stands for ultrakill master shader
-public static class UKMaster
+internal static class UKMaster
 {
-    static Shader MasterShader = DefaultReferenceManager.Instance?.masterShader ?? throw new NullReferenceException("ffs the fucking defaultreferencemanager is null");
+    public static readonly Shader shader = DefaultReferenceManager.Instance?.masterShader
+        ?? Addressables.LoadAssetAsync<Shader>("Assets/Shaders/MasterShader/ULTRAKILL-Standard.shader").WaitForCompletion();
 
     [Type(ShaderPropertyType.Color)]
     public static readonly int _Color = Shader.PropertyToID("_Color");
@@ -34,10 +36,10 @@ public static class UKMaster
     public static readonly int _ZWrite = Shader.PropertyToID("_ZWrite");
 
     public static readonly LocalKeyword
-        ALPHA_TEST = new(MasterShader, "ALPHA_TEST"),
-        TRANSPARENCY = new(MasterShader, "TRANSPARENCY"),
-        VERTEX_LIGHTING = new(MasterShader, "VERTEX_LIGHTING"),
-        _FOG_ON = new(MasterShader, "_FOG_ON");
+        ALPHA_TEST = new(shader, "ALPHA_TEST"),
+        TRANSPARENCY = new(shader, "TRANSPARENCY"),
+        VERTEX_LIGHTING = new(shader, "VERTEX_LIGHTING"),
+        _FOG_ON = new(shader, "_FOG_ON");
 
 
     class EnumAttribute(string _) : Attribute;

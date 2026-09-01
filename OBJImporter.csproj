@@ -25,16 +25,12 @@
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" />
 
 		<!-- Assemblies via Managed -->
-		<Reference Include="Assembly-CSharp gay" Publicize="true">
-			<HintPath>$(ManagedPath)\Assembly-CSharp.dll</HintPath>
-		</Reference>
-		<Reference Include="PLog lesbiab" Publicize="true">
-			<HintPath>$(ManagedPath)\plog.dll</HintPath>
-		</Reference>
-    
-    <Reference Include="Newtonsoft.Json" Publicize="true">
-      <HintPath>$(ManagedPath)\Newtonsoft.Json.dll</HintPath>
-    </Reference>
+		<Reference Include="$(ManagedPath)\Assembly-CSharp.dll" Publicize="true" />
+		<Reference Include="$(ManagedPath)\plog.dll" />
+
+    <Reference Include="$(ManagedPath)\Newtonsoft.Json.dll" />
+    <Reference Include="$(ManagedPath)\Unity.Addressables.dll" />
+    <Reference Include="$(ManagedPath)\Unity.ResourceManager.dll" />
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="Build">

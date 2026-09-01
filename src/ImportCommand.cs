@@ -14,7 +14,14 @@ public class ImportCommand : ICommand
     {
         string path = string.Join(' ', args).Trim('"');
 
-        Importer.CreateGameObject(path, NewMovement.Instance?.transform.position);
+        try
+        {
+            Importer.CreateGameObject(path, NewMovement.Instance?.transform.position);
+        }
+        catch (System.Exception ex)
+        {
+            UnityEngine.Debug.LogException(ex);
+        }
     }
 }
 
@@ -31,11 +38,11 @@ public class ImportBenchmarkCommand : ICommand
 
         Stopwatch watch = Stopwatch.StartNew();
 
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 1000; i++)
             Importer._createMesh(path, out _, out _);
 
         watch.Stop();
 
-        Log.Info($"Benchmark took {watch.Elapsed.TotalSeconds} seconds to complete, each import on average took {watch.Elapsed.TotalMilliseconds / 100d} miliseconds to complete.");
+        Log.Info($"Benchmark took {watch.Elapsed.TotalSeconds} seconds to complete, each import on average took {watch.Elapsed.TotalMilliseconds / 1000d} miliseconds to complete.");
     }
 }

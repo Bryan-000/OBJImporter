@@ -14,9 +14,15 @@ public class OBJPlugin : BaseUnityPlugin
         public const string Version = "1.0.0";
     }
 
+    public static OBJPlugin Instance;
+
     /// <summary> :33333 </summary>
-    public void Awake() =>
+    public void Awake()
+    {
+        Instance = this;
+
         Harmony.CreateAndPatchAll(GetType(), Information.GUID);
+    }
 
     /// <summary> Adds our command to the F8 console when it's created. </summary>
     [HarmonyPostfix] [HarmonyPatch(typeof(Console), "Awake")]
