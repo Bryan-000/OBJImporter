@@ -32,9 +32,6 @@ internal static class UKMaster
     [Type(ShaderPropertyType.Float)]
     public static readonly int _Opacity = Shader.PropertyToID("_Opacity");
 
-    [Type(ShaderPropertyType.Float)]
-    public static readonly int _ZWrite = Shader.PropertyToID("_ZWrite");
-
     public static readonly LocalKeyword
         ALPHA_TEST = new(shader, "ALPHA_TEST"),
         TRANSPARENCY = new(shader, "TRANSPARENCY"),

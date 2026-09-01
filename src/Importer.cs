@@ -5,18 +5,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
 /// <summary> Helper for parsing .obj files into meshes/GameObjects. </summary>
 public static class Importer
 {
-    /// <summary> Static PLogger for the importer class so we can send logs directly to the f8 console. </summary>
-    private static readonly plog.Logger Log = new("Importer");
-
     /// <summary> Creates a GameObject from an .obj file with optional transform parameters. </summary>
     public static GameObject CreateGameObject(string path, Vector3? position = null, Quaternion? rotation = null, Transform parent = null, bool lighting = false) =>
         CreateGameObject(path, false, position, rotation, parent, lighting);
@@ -65,22 +60,26 @@ public static class Importer
             throw new FileNotFoundException($"File at '{path}' doesn't exist or isn't an obj file.");
 
 
-        Debug($"Creating mesh from obj file at '{path}'");
+        _logDebug($"Creating mesh from obj file at '{path}'");
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         _createMesh(path, out Mesh result, out List<Material> materials, lighting);
 
         stopwatch.Stop();
-        Debug($"Mesh creation took a total of {stopwatch.Elapsed.TotalSeconds} seconds.");
+        _logDebug($"Mesh creation took a total of {stopwatch.Elapsed.TotalMilliseconds}ms");
 
         return (result, [.. materials]);
     }
 
+    // these methods start with underscores so even when some1 runs this through a publicizer they dont accidentally call these instead of the main funcs
     #region Internal bullshit please dont read this code its ass i hate it
 
-    //[Conditional("Debug")]
-    internal static void Debug(string message) =>
-        Log.Info(message);
+    /// <summary> Static PLogger for the importer class so we can send logs directly to the f8 console. </summary>
+    private static readonly plog.Logger _log = new("Importer");
+
+    [Conditional("Debug")]
+    private static void _logDebug(string message) =>
+        _log.Info(message);
 
     internal static void _createMesh(string path, out Mesh mesh, out List<Material> materials, bool lighting = false)
     {
@@ -93,12 +92,10 @@ public static class Importer
 
 
         if (lighting)
-        {
             foreach (Material mat in materials)
             {
                 mat.EnableKeyword(UKMaster.VERTEX_LIGHTING);
             }
-        }
 
 
         List<int> totalVertexIndices = [];
@@ -109,25 +106,15 @@ public static class Importer
         // sort UV's and normals list for unity, since unity uses the same indices for vertices as for everything else]
         Vector2[] UVs = new Vector2[vertices.Count];
         Vector3[] normals = new Vector3[vertices.Count];
-        if (obj_UVs.Count != 0 && obj_normals.Count != 0)
+        if (obj_UVs.Count != 0 || obj_normals.Count != 0)
         {
             for (int i = 0; i < totalVertexIndices.Count; i++)
             {
                 // take the uv at obj_uvIndice in obj_uv's and set the uv at vertexIndice in uv's to that obj_uv
                 // so that when unity takes the vertexIndice and looks in the uv's for the uv at that vertexIndice, it gets the right one
-                UVs[totalVertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
-                normals[totalVertexIndices[i]] = obj_normals[obj_normalIndices[i]];
+                if (obj_UVs.Count != 0)  UVs[totalVertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
+                if (obj_normals.Count != 0)  normals[totalVertexIndices[i]] = obj_normals[obj_normalIndices[i]];
             }
-        }
-        else if (obj_UVs.Count != 0)
-        {
-            for (int i = 0; i < totalVertexIndices.Count; i++)
-                UVs[totalVertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
-        }
-        else if (obj_normals.Count != 0)
-        {
-            for (int i = 0; i < totalVertexIndices.Count; i++)
-                normals[totalVertexIndices[i]] = obj_normals[obj_normalIndices[i]];
         }
 
 
@@ -170,7 +157,6 @@ public static class Importer
 
         int currentSubMesh = 0;
         Dictionary<string, Material> materials = [];
-        List<(int v, int u, int n)> faceVertices = [];
         foreach (ReadOnlySpan<char> line in File.ReadLines(objPath))
         {
             if (line.Length == 0 || line[0] == '#')
@@ -189,7 +175,7 @@ public static class Importer
                             if (Parser.TryReadFloat(line, ref cursor, out float scaler))
                                 vertex *= scaler;
 
-                            vertices.Add(Parser.I_ToVector3(line[2..]));
+                            vertices.Add(vertex);
                         break;
 
                         // (vn) normals meow
@@ -211,47 +197,56 @@ public static class Importer
 
                     // parse the line
                     int position = 2;
-                    while (Parser.SeekAndSlice(line, ' ', ref position, out var sliceStr))
+                    try
                     {
-                        if (justVertex)
+                        while (Parser.SeekAndSlice(line, ' ', ref position, out var sliceStr))
                         {
-                            parts.Add((int.Parse(sliceStr), null, null));
-                        }
-                        else
-                        {
-                            int slicePos = 0;
-                            if (Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vStr))
+                            if (justVertex)
                             {
-                                // unity indices start from 0 while .obj's start from 1, so remove 1
-                                int v = Parser.ParseInt(vStr)-1;
+                                parts.Add((int.Parse(sliceStr), null, null));
+                            }
+                            else
+                            {
+                                int slicePos = 0;
+                                if (Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vStr))
+                                {
+                                    // unity indices start from 0 while .obj's start from 1, so remove 1
+                                    int v = Parser.ParseInt(vStr) - 1;
 
-                                int? vt = Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vtStr)
-                                    ? Parser.ParseInt(vtStr)-1 : null;
+                                    int? vt = Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vtStr)
+                                        ? Parser.ParseInt(vtStr) - 1 : null;
 
-                                int? vn = Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vnStr)
-                                    ? Parser.ParseInt(vnStr)-1 : null;
+                                    int? vn = Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vnStr)
+                                        ? Parser.ParseInt(vnStr) - 1 : null;
 
-                                parts.Add((v, vt, vn));
+                                    parts.Add((v, vt, vn));
+                                }
                             }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Face read error, failed to parse line '{line.ToString()}', last position: '{position}'", ex);
+                    }
 
                     // add to the lists while reversing the winding order since we flip the models on the x-axis
-                    if (parts.Count < 3)
-                    {
-                        AddToIndices(parts[0], vertexIndices[currentSubMesh], uvIndices, normalIndices);
-                        AddToIndices(parts[2], vertexIndices[currentSubMesh], uvIndices, normalIndices);
-                        AddToIndices(parts[1], vertexIndices[currentSubMesh], uvIndices, normalIndices);
-                    }
-                    else
+                    // if theres more than 3 parts in this face, that means its a strip, and we need to parse it as multiple faces
+                    if (parts.Count > 3)
                     {
                         // convert strip faces into multiple triangles before adding them to the lists
                         for (int i = 1; i < parts.Count - 1; i++)
                         {
-                            AddToIndices(parts[0], vertexIndices[currentSubMesh], uvIndices, normalIndices);
-                            AddToIndices(parts[i + 1], vertexIndices[currentSubMesh], uvIndices, normalIndices);
-                            AddToIndices(parts[i], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                            _addToIndices(parts[0], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                            _addToIndices(parts[i + 1], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                            _addToIndices(parts[i], vertexIndices[currentSubMesh], uvIndices, normalIndices);
                         }
+                    }
+                    else
+                    {
+                        // why cant local functions use out params
+                        _addToIndices(parts[0], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                        _addToIndices(parts[2], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                        _addToIndices(parts[1], vertexIndices[currentSubMesh], uvIndices, normalIndices);
                     }
                 break;
 
@@ -290,10 +285,10 @@ public static class Importer
         }
 
         stopwatch.Stop();
-        Debug($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
+        _logDebug($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
     }
 
-    private static void AddToIndices((int v, int? vt, int? vn) vertex, List<int> subVertexIndices, List<int> uvIndices, List<int> normalIndices)
+    private static void _addToIndices((int v, int? vt, int? vn) vertex, List<int> subVertexIndices, List<int> uvIndices, List<int> normalIndices)
     {
         subVertexIndices.Add(vertex.v);
         if (vertex.vt.HasValue) uvIndices.Add(vertex.vt.Value);
@@ -333,7 +328,7 @@ public static class Importer
                     case 'm' when line.StartsWith("map_Kd"):
                         string texPath = Path.GetFullPath(line[7..].ToString(), Path.GetDirectoryName(mtlPath));
 
-                        OBJPlugin.Instance.StartCoroutine(AssignTextureAsync(current, texPath));
+                        OBJPlugin.Instance.StartCoroutine(_assignTextureCorountine(current, texPath));
                     break;
                 }
             }
@@ -349,12 +344,12 @@ public static class Importer
         }
 
         stopwatch.Stop();
-        Debug($".MTL mesh data extraction took {stopwatch.Elapsed.TotalSeconds} seconds.");
+        _logDebug($".MTL mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
     }
 
-    private static IEnumerator AssignTextureAsync(Material target, string texPath)
+    private static IEnumerator _assignTextureCorountine(Material target, string texPath)
     {
-        Task<byte[]> readFile = Task.Run(() => File.ReadAllBytesAsync(texPath));
+        Task<byte[]> readFile = File.ReadAllBytesAsync(texPath);
         while (!readFile.IsCompleted)
             yield return null;
 

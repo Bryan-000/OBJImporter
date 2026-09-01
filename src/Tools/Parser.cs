@@ -4,7 +4,6 @@ using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 internal static class Parser
 {
@@ -37,29 +36,12 @@ internal static class Parser
     public static int ParseInt(ReadOnlySpan<char> str) =>
         int.Parse(str, NumberStyles.Integer, CultureInfo.InvariantCulture);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float ParseFloat(ReadOnlySpan<char> str) =>
-        float.Parse(str, NumberStyles.Float, CultureInfo.InvariantCulture);
-
     public static bool Contains(ReadOnlySpan<char> str, char search)
     {
         for (int cursor = 0; cursor < str.Length; cursor++)
         {
             if (str[cursor] == search)
                 return true;
-        }
-
-        return false;
-    }
-
-    public static bool Seek(ReadOnlySpan<char> str, char search, ref int cursor)
-    {
-        while (cursor < str.Length)
-        {
-            if (str[cursor] == search)
-                return true;
-
-            cursor++;
         }
 
         return false;
@@ -134,7 +116,7 @@ internal static class Parser
 
         try
         {
-            return ParseFloat(str[start..cursor]);
+            return float.Parse(str[start..cursor], NumberStyles.Float, CultureInfo.InvariantCulture);
         }
         catch (Exception ex)
         {
