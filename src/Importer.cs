@@ -172,7 +172,7 @@ public static class Importer
                         // (v) vertice positions :3
                         case ' ':
                             Vector3 vertex = Parser.I_ToVector3(line[2..], out int cursor);
-                            if (Parser.TryReadFloat(line, ref cursor, out float scaler))
+                            if (Parser.TryReadFloat(line[2..], ref cursor, out float scaler))
                                 vertex *= scaler;
 
                             vertices.Add(vertex);
