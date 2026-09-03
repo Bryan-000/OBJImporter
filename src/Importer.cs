@@ -43,7 +43,12 @@ public static class Importer
     {
         (mesh, mats) = CreateMesh(path, lighting);
 
-        GameObject obj = new(mesh.name);
+        GameObject obj = new()
+        {
+            name = mesh.name,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+
         obj.AddComponent<MeshFilter>().sharedMesh = mesh;
         obj.AddComponent<MeshRenderer>().sharedMaterials = mats;
 
@@ -121,7 +126,8 @@ public static class Importer
         // turn modified obj data into a mesh :3
         mesh = new()
         {
-            name = Path.GetFileNameWithoutExtension(path)
+            name = Path.GetFileNameWithoutExtension(path),
+            hideFlags = HideFlags.HideAndDontSave
         };
 
         // set vertices miaaaow
@@ -335,10 +341,13 @@ public static class Importer
 
             if (line[0] == 'n' && line.StartsWith("newmtl"))
             {
-                current = new(UKMaster.shader);
-                current.ChangeBlendModeToTransparent();
+                current = new(UKMaster.shader)
+                {
+                    name = line[7..].ToString(),
+                    hideFlags = HideFlags.HideAndDontSave
+                };
 
-                current.name = line[7..].ToString();
+                current.ChangeBlendModeToTransparent();
                 materials[current.name] = current;
             }
         }
