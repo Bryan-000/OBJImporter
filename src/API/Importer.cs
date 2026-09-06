@@ -1,4 +1,4 @@
-﻿namespace OBJImporter;
+﻿namespace OBJImporter.API;
 
 using OBJImporter.Tools;
 using System;
