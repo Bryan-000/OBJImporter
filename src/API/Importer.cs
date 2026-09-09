@@ -8,8 +8,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityDebug = UnityEngine.Debug;
 
-/// <summary> Helper for parsing .obj files into meshes/GameObjects. </summary>
+/// <summary> Helper for parsing .obj files and importing them into meshes/GameObjects. </summary>
 public static class Importer
 {
     /// <summary> Creates a GameObject from an .obj file with optional transform parameters. </summary>
@@ -58,22 +59,33 @@ public static class Importer
     /// <summary> Creates a mesh and materials from an .obj file. </summary>
     public static (Mesh, Material[]) CreateMesh(string path, bool lighting = false)
     {
-        // clean the path for this specific OS
-        path = path.Replace(['\\', '/'], Path.DirectorySeparatorChar);
+        try
+        {
+            // clean the path for this specific OS
+            path = path.Replace(['\\', '/'], Path.DirectorySeparatorChar);
 
-        if (!path.EndsWith(".obj") || !File.Exists(path))
-            throw new FileNotFoundException($"File at '{path}' doesn't exist or isn't an obj file.");
+            if (!path.EndsWith(".obj") || !File.Exists(path))
+                throw new FileNotFoundException($"File at '{path}' doesn't exist or isn't an obj file.");
 
 
-        _logDebug($"Creating mesh from obj file at '{path}'");
-        Stopwatch stopwatch = Stopwatch.StartNew();
+            _logDebug($"Creating mesh from obj file at '{path}'");
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
-        _createMesh(path, out Mesh result, out List<Material> materials, lighting);
+            _createMesh(path, out Mesh result, out List<Material> materials, lighting);
 
-        stopwatch.Stop();
-        _logDebug($"Mesh creation took a total of {stopwatch.Elapsed.TotalMilliseconds}ms");
+            stopwatch.Stop();
+            _logDebug($"Mesh creation took a total of {stopwatch.Elapsed.TotalMilliseconds}ms");
 
-        return (result, [.. materials]);
+
+            return (result, [.. materials]);
+        }
+        catch (Exception ex)
+        {
+            UnityDebug.LogException(ex);
+
+            // fallback model
+            return (Assets.ErrorModel, [Assets.ErrorModel_Mat]);
+        }
     }
 
     // these methods start with underscores so even when some1 runs this through a publicizer they dont accidentally call these instead of the main funcs
@@ -177,8 +189,8 @@ public static class Importer
                     {
                         // (v) vertice positions :3
                         case ' ':
-                            Vector3 vertex = Parser.I_ToVector3(line[2..], out int cursor);
-                            if (Parser.TryReadFloat(line[2..], ref cursor, out float scaler))
+                            Vector3 vertex = ParseHelper.I_ToVector3(line[2..], out int cursor);
+                            if (ParseHelper.TryReadFloat(line[2..], ref cursor, out float scaler))
                                 vertex *= scaler;
 
                             vertices.Add(vertex);
@@ -186,12 +198,12 @@ public static class Importer
 
                         // (vn) normals meow
                         case 'n':
-                            normals.Add(Parser.I_ToVector3(line[3..]));
+                            normals.Add(ParseHelper.I_ToVector3(line[3..]));
                         break;
 
                         // (vt) uv's rawr >:3
                         case 't':
-                            UVs.Add(Parser.ToVector2(line[3..]));
+                            UVs.Add(ParseHelper.ToVector2(line[3..]));
                         break;
                     }
                 break;
@@ -199,13 +211,13 @@ public static class Importer
                 // (f) faces/indicies :p
                 case 'f':
                     List<(int v, int? vt, int? vn)> parts = new(3);
-                    bool justVertex = !Parser.Contains(line, '/');
+                    bool justVertex = !ParseHelper.Contains(line, '/');
 
                     // parse the line
                     int position = 2;
                     try
                     {
-                        while (Parser.SeekAndSlice(line, ' ', ref position, out var sliceStr))
+                        while (ParseHelper.SeekAndSlice(line, ' ', ref position, out var sliceStr))
                         {
                             if (justVertex)
                             {
@@ -214,16 +226,16 @@ public static class Importer
                             else
                             {
                                 int slicePos = 0;
-                                if (Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vStr))
+                                if (ParseHelper.SeekAndSlice(sliceStr, '/', ref slicePos, out var vStr))
                                 {
                                     // unity indices start from 0 while .obj's start from 1, so remove 1
-                                    int v = Parser.ParseInt(vStr) - 1;
+                                    int v = ParseHelper.ParseInt(vStr) - 1;
 
-                                    int? vt = Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vtStr)
-                                        ? Parser.ParseInt(vtStr) - 1 : null;
+                                    int? vt = ParseHelper.SeekAndSlice(sliceStr, '/', ref slicePos, out var vtStr)
+                                        ? ParseHelper.ParseInt(vtStr) - 1 : null;
 
-                                    int? vn = Parser.SeekAndSlice(sliceStr, '/', ref slicePos, out var vnStr)
-                                        ? Parser.ParseInt(vnStr) - 1 : null;
+                                    int? vn = ParseHelper.SeekAndSlice(sliceStr, '/', ref slicePos, out var vnStr)
+                                        ? ParseHelper.ParseInt(vnStr) - 1 : null;
 
                                     parts.Add((v, vt, vn));
                                 }
@@ -266,7 +278,10 @@ public static class Importer
                     }
 
                     string mtlName = line[7..].ToString();
-                    outMaterials.Add(materials[mtlName]);
+                    if (!materials.TryGetValue(mtlName, out Material mat))
+                        mat = Assets.MissingTex_Mat;
+
+                    outMaterials.Add(mat);
                 break;
 
                 // loads a mtl, the doohickey which defines multiple materials and their textures + properties
@@ -274,8 +289,7 @@ public static class Importer
                     string mtlPath = Path.GetFullPath(line[7..].ToString(), Path.GetDirectoryName(objPath));
 
                     stopwatch.Stop();
-                    if (mtlPath.EndsWith(".mtl") && File.Exists(mtlPath))
-                        _extractMTLData(mtlPath, ref materials);
+                    _extractMTLData(mtlPath, ref materials);
                     stopwatch.Start();
                 break;
             }
@@ -303,80 +317,128 @@ public static class Importer
 
     internal static void _extractMTLData(string mtlPath, ref Dictionary<string, Material> materials)
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
-
-        Material current = null;
-        foreach (ReadOnlySpan<char> line in File.ReadLines(mtlPath))
+        try
         {
-            if (line.Length == 0 || line[0] == '#')
-                continue;
+            if (!mtlPath.EndsWith(".mtl") || !File.Exists(mtlPath))
+                throw new FileNotFoundException($"MTL Extraction error: File at '{mtlPath}' doesn't exist or isn't an .mtl file.");
 
-            if (current != null)
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            Material current = null;
+            foreach (ReadOnlySpan<char> line in File.ReadLines(mtlPath))
             {
-                switch (line[0])
+                if (line.Length == 0 || line[0] == '#')
+                    continue;
+
+                if (current != null)
                 {
-                    // color
-                    case 'K' when line[1] == 'd':
-                        current.SetColor(UKMaster._Color, Parser.ToColor(line[3..]));
-                    break;
+                    switch (line[0])
+                    {
+                        // color
+                        case 'K' when line[1] == 'd':
+                            current.SetColor(UKMaster._Color, ParseHelper.ToColor(line[3..]));
+                            break;
 
-                    // opacity
-                    case 'd':
-                        current.SetFloat(UKMaster._Opacity, float.Parse(line[2..]));
-                    break;
+                        // opacity
+                        case 'd':
+                            current.SetFloat(UKMaster._Opacity, float.Parse(line[2..]));
+                            break;
 
-                    // inverse opacity
-                    case 'T' when line[1] == 'r':
-                        current.SetFloat(UKMaster._Opacity, 1f - float.Parse(line[2..]));
-                    break;
+                        // inverse opacity
+                        case 'T' when line[1] == 'r':
+                            current.SetFloat(UKMaster._Opacity, 1f - float.Parse(line[2..]));
+                            break;
 
-                    // texture
-                    case 'm' when line.StartsWith("map_Kd"):
-                        string texPath = Path.GetFullPath(line[7..].ToString(), Path.GetDirectoryName(mtlPath));
+                        // texture
+                        case 'm' when line.StartsWith("map_Kd"):
+                            string texPath = Path.GetFullPath(line[7..].ToString(), Path.GetDirectoryName(mtlPath));
 
-                        OBJPlugin.Instance.StartCoroutine(_assignTextureCorountine(current, texPath));
-                    break;
+                            OBJPlugin.Instance.StartCoroutine(_assignTextureCorountine(current, texPath));
+                            break;
+                    }
+                }
+
+                if (line[0] == 'n' && line.StartsWith("newmtl"))
+                {
+                    current = new(UKMaster.shader)
+                    {
+                        name = line[7..].ToString(),
+                        hideFlags = HideFlags.HideAndDontSave
+                    };
+
+                    current.ChangeBlendModeToTransparent();
+                    materials[current.name] = current;
                 }
             }
 
-            if (line[0] == 'n' && line.StartsWith("newmtl"))
-            {
-                current = new(UKMaster.shader)
-                {
-                    name = line[7..].ToString(),
-                    hideFlags = HideFlags.HideAndDontSave
-                };
-
-                current.ChangeBlendModeToTransparent();
-                materials[current.name] = current;
-            }
+            stopwatch.Stop();
+            _logDebug($".MTL mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
         }
-
-        stopwatch.Stop();
-        _logDebug($".MTL mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
+        catch (Exception ex)
+        {
+            UnityDebug.LogException(ex);
+        }
     }
 
     private static IEnumerator _assignTextureCorountine(Material target, string texPath)
     {
-        Task<byte[]> readFile = File.ReadAllBytesAsync(texPath);
+        if (!File.Exists(texPath))
+        {
+            UnityDebug.LogException(new FileNotFoundException(
+                $"Texture load error: File at '{texPath}' doesn't exist."
+            ));
+
+            goto setFallback;
+        }
+
+        Task<byte[]> readFile;
+        try
+        {
+            readFile = File.ReadAllBytesAsync(texPath);
+        }
+        catch (Exception ex)
+        {
+            UnityDebug.LogException(new(
+                $"Texture load error: Failed to load texture at path '{texPath}'.",
+                ex
+            ));
+
+            goto setFallback;
+        }
+
         while (!readFile.IsCompleted)
             yield return null;
 
-        if (readFile.IsCompletedSuccessfully)
+        try
         {
-            Texture2D tex = new(0, 0);
-            tex.name = Path.GetFileName(texPath);
+            if (readFile.IsCompletedSuccessfully)
+            {
+                Texture2D tex = new(0, 0);
+                tex.name = Path.GetFileName(texPath);
 
-            if (tex.LoadImage(readFile.Result))
-                target.SetTexture(UKMaster._MainTex, tex);
+                if (tex.LoadImage(readFile.Result))
+                    target.SetTexture(UKMaster._MainTex, tex);
+            }
+            else
+            {
+                throw readFile.Exception;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            UnityEngine.Debug.LogException(new(
-                $"Failed to load texture at path '{texPath}', status: '{readFile.Status}'.",
-                readFile.Exception
+            UnityDebug.LogException(new(
+                $"Texture load error: Failed to load texture at path '{texPath}', status: '{readFile.Status}'.",
+                ex
             ));
+
+            goto setFallback;
         }
+
+        yield break;
+
+    setFallback:
+        target.SetTexture(UKMaster._MainTex, Assets.MissingTex);
+        target.mainTextureScale = new(5, 5);
     }
 
     #endregion

@@ -11,6 +11,9 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<NoWarn>IDE0130, IDE0251, IDE0062</NoWarn>
 
+    <!-- Compile time constants, add "Debug" here for extra debugging tools that aren't usually compiled into release builds. -->
+    <DefineConstants>Debug</DefineConstants>
+
 		<!-- Resources so nuget can fucking find BepInEx and Unity. -->
 		<RestoreAdditionalProjectSources>
 			https://api.nuget.org/v3/index.json;
@@ -19,6 +22,9 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
+    <!-- Embedded assets to shove into the dll -->
+    <EmbeddedResource Include="Assets\objimporter-assets.bundle" LogicalName="objimporter-assets.bundle" />
+    
 		<!-- Nuget Packages -->
 		<PackageReference Include="BepInEx.Core" Version="5.4.21" />
 		<PackageReference Include="UnityEngine.Modules" Version="2022.3.29" />

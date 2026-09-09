@@ -21,6 +21,13 @@ internal static class Extensions
 
     extension(Material mat)
     {
+        public Material AddMasterShader()
+        {
+            mat.shader = UKMaster.shader;
+
+            return mat;
+        }
+
         public void ChangeBlendModeToTransparent()
         {
             mat.SetFloat(UKMaster._BlendMode, 2);

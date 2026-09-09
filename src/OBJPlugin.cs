@@ -12,12 +12,18 @@ public class OBJPlugin : BaseUnityPlugin
         public const string GUID = "Bryan_-000-.OBJImporter";
         public const string Name = "OBJImporter";
         public const string Version = "1.0.0";
+
+#if Debug
+        public const bool Debug = true;
+#else
+        public const bool Debug = false;
+#endif
     }
 
-    public static OBJPlugin Instance;
+    internal static OBJPlugin Instance;
 
     /// <summary> :33333 </summary>
-    public void Awake()
+    private void Awake()
     {
         Instance = this;
 
@@ -26,7 +32,7 @@ public class OBJPlugin : BaseUnityPlugin
 
     /// <summary> Adds our command to the F8 console when it's created. </summary>
     [HarmonyPostfix] [HarmonyPatch(typeof(Console), "Awake")]
-    public static void AddCmdOnConsoleLoad(Console __instance)
+    private static void AddCmdOnConsoleLoad(Console __instance)
     {
         __instance.RegisterCommand(new ImportCommand());
         __instance.RegisterCommand(new ImportBenchmarkCommand());

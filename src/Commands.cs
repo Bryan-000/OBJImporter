@@ -5,7 +5,7 @@ using OBJImporter.API;
 using plog;
 using System.Diagnostics;
 
-public class ImportCommand : ICommand
+internal class ImportCommand : ICommand
 {
     public string Name => "Import";
     public string Description => "Imports an OBJ file into ultrakill.";
@@ -26,7 +26,7 @@ public class ImportCommand : ICommand
     }
 }
 
-public class ImportBenchmarkCommand : ICommand
+internal class ImportBenchmarkCommand : ICommand
 {
     public string Name => "ImportBenchmark";
     public string Description => "Benchmarks .obj importing.";
