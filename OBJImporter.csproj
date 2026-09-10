@@ -12,7 +12,7 @@
 		<NoWarn>IDE0130, IDE0251, IDE0062</NoWarn>
 
     <!-- Compile time constants, add "Debug" here for extra debugging tools that aren't usually compiled into release builds. -->
-    <DefineConstants>Debug</DefineConstants>
+    <DefineConstants></DefineConstants>
 
 		<!-- Resources so nuget can fucking find BepInEx and Unity. -->
 		<RestoreAdditionalProjectSources>
