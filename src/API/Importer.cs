@@ -102,9 +102,9 @@ public static class Importer
     {
         // go through each line and read the obj's data, variables starting with 'obj_' get modified b4 being fed into the unity mesh
         _extractOBJData(path,
-            out List<Vector3> vertices, out List<Vector3> obj_normals, out List<Vector2> obj_UVs,
-            out List<List<int>> subMeshIndices, out List<int> obj_normalIndices, out List<int> obj_uvIndices,
-            out materials
+            out List<Vector3> rawVectices, out List<Vector3> rawNormals, out List<Vector2> rawUVs,
+            out List<Vector3> vertices,    out List<Vector3> normals,    out List<Vector2> UVs,
+            out List<List<int>> subMeshIndices, out materials
         );
 
 
@@ -118,21 +118,6 @@ public static class Importer
         List<int> totalVertexIndices = [];
         foreach (List<int> indices in subMeshIndices)
             totalVertexIndices.AddRange(indices);
-
-
-        // sort UV's and normals list for unity, since unity uses the same indices for vertices as for everything else]
-        Vector2[] UVs = new Vector2[vertices.Count];
-        Vector3[] normals = new Vector3[vertices.Count];
-        if (obj_UVs.Count != 0 || obj_normals.Count != 0)
-        {
-            for (int i = 0; i < totalVertexIndices.Count; i++)
-            {
-                // take the uv at obj_uvIndice in obj_uv's and set the uv at vertexIndice in uv's to that obj_uv
-                // so that when unity takes the vertexIndice and looks in the uv's for the uv at that vertexIndice, it gets the right one
-                if (obj_UVs.Count != 0)  UVs[totalVertexIndices[i]] = obj_UVs[obj_uvIndices[i]];
-                if (obj_normals.Count != 0)  normals[totalVertexIndices[i]] = obj_normals[obj_normalIndices[i]];
-            }
-        }
 
 
         // turn modified obj data into a mesh :3
@@ -149,11 +134,11 @@ public static class Importer
             mesh.SetTriangles(subMeshIndices[i], i);
 
         // some meshs dont have uv's so check
-        if (obj_UVs.Count != 0)
+        if (rawUVs.Count != 0)
             mesh.SetUVs(0, UVs);
 
         // same for normals, but calculate them if not
-        if (obj_normals.Count != 0)
+        if (rawNormals.Count != 0)
             mesh.SetNormals(normals);
         else
             mesh.RecalculateNormals();
@@ -162,19 +147,23 @@ public static class Importer
     }
 
     internal static void _extractOBJData(string objPath,
-            out List<Vector3> vertices, out List<Vector3> normals, out List<Vector2> UVs,
-            out List<List<int>> vertexIndices, out List<int> normalIndices, out List<int> uvIndices,
-            out List<Material> outMaterials
+            out List<Vector3> rawVertices, out List<Vector3> rawNormals, out List<Vector2> rawUVs,
+            out List<Vector3> vertices,    out List<Vector3> normals,    out List<Vector2> UVs,
+            out List<List<int>> indices,   out List<Material> outMaterials
         )
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-        vertices = []; vertexIndices = [[]];
-        normals = [];  normalIndices = [];
-        UVs = [];      uvIndices = [];
+
+        rawVertices = []; vertices = [];
+        rawNormals = [];  normals = [];
+        rawUVs = [];      UVs = [];
+
+        indices = [[]];
         outMaterials = [];
 
         int currentSubMesh = 0;
         Dictionary<string, Material> materials = [];
+        Dictionary<(int v, int? vt, int? vn), int> vertexCache = [];
         foreach (ReadOnlySpan<char> line in File.ReadLines(objPath))
         {
             if (line.Length == 0 || line[0] == '#')
@@ -193,17 +182,17 @@ public static class Importer
                             if (ParseHelper.TryReadFloat(line[2..], ref cursor, out float scaler))
                                 vertex *= scaler;
 
-                            vertices.Add(vertex);
+                            rawVertices.Add(vertex);
                         break;
 
                         // (vn) normals meow
                         case 'n':
-                            normals.Add(ParseHelper.I_ToVector3(line[3..]));
+                            rawNormals.Add(ParseHelper.I_ToVector3(line[3..]));
                         break;
 
                         // (vt) uv's rawr >:3
                         case 't':
-                            UVs.Add(ParseHelper.ToVector2(line[3..]));
+                            rawUVs.Add(ParseHelper.ToVector2(line[3..]));
                         break;
                     }
                 break;
@@ -248,25 +237,46 @@ public static class Importer
                     }
 
                     // add to the lists while reversing the winding order since we flip the models on the x-axis
-                    // if theres more than 3 parts in this face, that means its a strip, and we need to parse it as multiple faces
+                    // if theres more than 3 parts in this face, that means its a strip, and we need to auto-triangulate it
                     if (parts.Count > 3)
                     {
-                        // convert strip faces into multiple triangles before adding them to the lists
+                        // convert strip faces into multiple triangles by triangulating them
                         for (int i = 1; i < parts.Count - 1; i++)
                         {
-                            _addToIndices(parts[0], vertexIndices[currentSubMesh], uvIndices, normalIndices);
-                            _addToIndices(parts[i + 1], vertexIndices[currentSubMesh], uvIndices, normalIndices);
-                            _addToIndices(parts[i], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                            Add(parts[0],   indices[currentSubMesh], rawVertices, rawNormals, rawUVs, vertices, normals, UVs);
+                            Add(parts[i+1], indices[currentSubMesh], rawVertices, rawNormals, rawUVs, vertices, normals, UVs);
+                            Add(parts[i],   indices[currentSubMesh], rawVertices, rawNormals, rawUVs, vertices, normals, UVs);
                         }
                     }
                     else
                     {
-                        // why cant local functions use out params
-                        _addToIndices(parts[0], vertexIndices[currentSubMesh], uvIndices, normalIndices);
-                        _addToIndices(parts[2], vertexIndices[currentSubMesh], uvIndices, normalIndices);
-                        _addToIndices(parts[1], vertexIndices[currentSubMesh], uvIndices, normalIndices);
+                        Add(parts[0], indices[currentSubMesh], rawVertices, rawNormals, rawUVs, vertices, normals, UVs);
+                        Add(parts[2], indices[currentSubMesh], rawVertices, rawNormals, rawUVs, vertices, normals, UVs);
+                        Add(parts[1], indices[currentSubMesh], rawVertices, rawNormals, rawUVs, vertices, normals, UVs);
                     }
-                break;
+
+                    // unity doesnt have separate indices for uv's and normals unlike .obj's
+                    // so add the vertex properties in a fancy new way so it all lines up
+                    void Add((int v, int? vt, int? vn) vertex, List<int> indices,
+                            List<Vector3> rawVertices, List<Vector3> rawNormals, List<Vector2> rawUVs,
+                            List< Vector3> vertices,   List<Vector3> normals,    List<Vector2> UVs
+                        )
+                    {
+                        if (vertexCache.TryGetValue(vertex, out int existingIndice))
+                        {
+                            indices.Add(existingIndice);
+                        }
+                        else
+                        {
+                            vertices.Add(rawVertices[vertex.v]);
+
+                            UVs.Add(vertex.vt.HasValue ? rawUVs[vertex.vt.Value] : Vector2.zero);
+                            normals.Add(vertex.vn.HasValue ? rawNormals[vertex.vn.Value] : Vector3.zero);
+
+                            indices.Add(vertexCache[vertex] = vertices.Count - 1);
+                        }
+                    }
+                    break;
 
                 // sets up the next indices to be in a diff submesh
                 // and sets right material to be used for those
@@ -274,7 +284,7 @@ public static class Importer
                     if (outMaterials.Count != 0)
                     {
                         currentSubMesh++;
-                        vertexIndices.Add([]);
+                        indices.Add([]);
                     }
 
                     string mtlName = line[7..].ToString();
@@ -306,13 +316,6 @@ public static class Importer
 
         stopwatch.Stop();
         _logDebug($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
-    }
-
-    private static void _addToIndices((int v, int? vt, int? vn) vertex, List<int> subVertexIndices, List<int> uvIndices, List<int> normalIndices)
-    {
-        subVertexIndices.Add(vertex.v);
-        if (vertex.vt.HasValue) uvIndices.Add(vertex.vt.Value);
-        if (vertex.vn.HasValue) normalIndices.Add(vertex.vn.Value);
     }
 
     internal static void _extractMTLData(string mtlPath, ref Dictionary<string, Material> materials)
