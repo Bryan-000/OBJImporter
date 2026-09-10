@@ -30,6 +30,8 @@ public class OBJPlugin : BaseUnityPlugin
         Harmony.CreateAndPatchAll(GetType(), Information.GUID);
     }
 
+#if Debug
+
     /// <summary> Adds our command to the F8 console when it's created. </summary>
     [HarmonyPostfix] [HarmonyPatch(typeof(Console), "Awake")]
     private static void AddCmdOnConsoleLoad(Console __instance)
@@ -37,4 +39,6 @@ public class OBJPlugin : BaseUnityPlugin
         __instance.RegisterCommand(new ImportCommand());
         __instance.RegisterCommand(new ImportBenchmarkCommand());
     }
+
+#endif
 }

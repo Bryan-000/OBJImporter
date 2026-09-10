@@ -1,9 +1,11 @@
-﻿namespace OBJImporter;
+﻿#if Debug
+
+namespace OBJImporter;
 
 using GameConsole;
 using OBJImporter.API;
-using plog;
 using System.Diagnostics;
+using UnityEngine;
 
 internal class ImportCommand : ICommand
 {
@@ -31,19 +33,23 @@ internal class ImportBenchmarkCommand : ICommand
     public string Name => "ImportBenchmark";
     public string Description => "Benchmarks .obj importing.";
     public string Command => "import_benchmark";
-    readonly Logger Log = new("Benchmark");
+    readonly plog.Logger Log = new("Benchmark");
 
     public void Execute(Console con, string[] args)
     {
         string path = string.Join(' ', args).Trim('"');
 
+        double start = Time.realtimeSinceStartupAsDouble;
         Stopwatch watch = Stopwatch.StartNew();
 
         for (int i = 0; i < 1000; i++)
             Importer._createMesh(path, out _, out _);
 
         watch.Stop();
+        double timeTaken = Time.realtimeSinceStartupAsDouble - start;
 
-        Log.Info($"Benchmark took {watch.Elapsed.TotalSeconds} seconds to complete, each import on average took {watch.Elapsed.TotalMilliseconds / 1000d} miliseconds to complete.");
+        Log.Info($"Benchmark results: each import on average took [ {watch.ElapsedMilliseconds / 1000d}ms ] or [ {timeTaken}ms ] to complete.");
     }
 }
+
+#endif

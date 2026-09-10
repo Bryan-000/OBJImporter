@@ -9,6 +9,7 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityDebug = UnityEngine.Debug;
+using Info = OBJPlugin.Information;
 
 /// <summary> Helper for parsing .obj files and importing them into meshes/GameObjects. </summary>
 public static class Importer
@@ -152,7 +153,9 @@ public static class Importer
             out List<List<int>> indices,   out List<Material> outMaterials
         )
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
+        Stopwatch stopwatch;
+        if (Info.Debug)
+            stopwatch = Stopwatch.StartNew();
 
         rawVertices = []; vertices = [];
         rawNormals = [];  normals = [];
@@ -314,8 +317,11 @@ public static class Importer
             outMaterials.Add(blank);
         }
 
-        stopwatch.Stop();
-        _logDebug($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
+        if (Info.Debug)
+        {
+            stopwatch.Stop();
+            _logDebug($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
+        }
     }
 
     internal static void _extractMTLData(string mtlPath, ref Dictionary<string, Material> materials)
@@ -325,7 +331,9 @@ public static class Importer
             if (!mtlPath.EndsWith(".mtl") || !File.Exists(mtlPath))
                 throw new FileNotFoundException($"MTL Extraction error: File at '{mtlPath}' doesn't exist or isn't an .mtl file.");
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            Stopwatch stopwatch;
+            if (Info.Debug)
+                stopwatch = Stopwatch.StartNew();
 
             Material current = null;
             foreach (ReadOnlySpan<char> line in File.ReadLines(mtlPath))
@@ -374,8 +382,11 @@ public static class Importer
                 }
             }
 
-            stopwatch.Stop();
-            _logDebug($".MTL mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
+            if (Info.Debug)
+            {
+                stopwatch.Stop();
+                _logDebug($".MTL mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
+            }
         }
         catch (Exception ex)
         {
@@ -391,57 +402,27 @@ public static class Importer
                 $"Texture load error: File at '{texPath}' doesn't exist."
             ));
 
-            goto setFallback;
+            target.SetTexture(UKMaster._MainTex, Assets.MissingTex);
+            target.mainTextureScale = new(5, 5);
+            yield break;
         }
 
-        Task<byte[]> readFile;
-        try
-        {
-            readFile = File.ReadAllBytesAsync(texPath);
-        }
-        catch (Exception ex)
-        {
-            UnityDebug.LogException(new(
-                $"Texture load error: Failed to load texture at path '{texPath}'.",
-                ex
-            ));
-
-            goto setFallback;
-        }
-
+        Task<byte[]> readFile = File.ReadAllBytesAsync(texPath);
         while (!readFile.IsCompleted)
             yield return null;
 
-        try
+        if (readFile.IsCompletedSuccessfully)
         {
-            if (readFile.IsCompletedSuccessfully)
-            {
-                Texture2D tex = new(0, 0);
-                tex.name = Path.GetFileName(texPath);
+            Texture2D tex = new(0, 0);
+            tex.name = Path.GetFileName(texPath);
 
-                if (tex.LoadImage(readFile.Result))
-                    target.SetTexture(UKMaster._MainTex, tex);
-            }
-            else
-            {
-                throw readFile.Exception;
-            }
+            if (tex.LoadImage(readFile.Result))
+                target.SetTexture(UKMaster._MainTex, tex);
         }
-        catch (Exception ex)
+        else
         {
-            UnityDebug.LogException(new(
-                $"Texture load error: Failed to load texture at path '{texPath}', status: '{readFile.Status}'.",
-                ex
-            ));
-
-            goto setFallback;
+            throw readFile.Exception;
         }
-
-        yield break;
-
-    setFallback:
-        target.SetTexture(UKMaster._MainTex, Assets.MissingTex);
-        target.mainTextureScale = new(5, 5);
     }
 
     #endregion
