@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-internal static class ParseHelper
+public static class ParseHelper
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 ToVector2(ReadOnlySpan<char> str)

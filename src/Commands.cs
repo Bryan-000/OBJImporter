@@ -4,6 +4,7 @@ namespace OBJImporter;
 
 using GameConsole;
 using OBJImporter.API;
+using OBJImporter.Tools;
 using System.Diagnostics;
 using UnityEngine;
 
@@ -43,7 +44,7 @@ internal class ImportBenchmarkCommand : ICommand
         Stopwatch watch = Stopwatch.StartNew();
 
         for (int i = 0; i < 1000; i++)
-            Importer._createMesh(path, out _, out _);
+            Parser.CreateMesh(path, out _, out _);
 
         watch.Stop();
         double timeTaken = Time.realtimeSinceStartupAsDouble - start;

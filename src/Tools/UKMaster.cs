@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 #pragma warning disable RCS1203, CS9113
 
 // it stands for ultrakill master shader
-internal static class UKMaster
+public static class UKMaster
 {
     public static readonly Shader shader = DefaultReferenceManager.Instance?.masterShader
         ?? Addressables.LoadAssetAsync<Shader>("Assets/Shaders/MasterShader/ULTRAKILL-Standard.shader").WaitForCompletion();
