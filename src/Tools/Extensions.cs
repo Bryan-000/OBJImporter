@@ -1,4 +1,6 @@
 ﻿global using static OBJImporter.Tools.Extensions;
+global using UnityDebug = UnityEngine.Debug;
+
 namespace OBJImporter.Tools;
 
 using UnityEngine;

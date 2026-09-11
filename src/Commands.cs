@@ -1,4 +1,4 @@
-﻿#if Debug
+﻿#if DEBUG
 
 namespace OBJImporter;
 
@@ -24,7 +24,7 @@ internal class ImportCommand : ICommand
         }
         catch (System.Exception ex)
         {
-            UnityEngine.Debug.LogException(ex);
+            UnityDebug.LogException(ex);
         }
     }
 }

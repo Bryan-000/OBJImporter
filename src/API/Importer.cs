@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityDebug = UnityEngine.Debug;
 
 /// <summary> API wrapper for <see cref="Parser"/> to make importing .obj files and converting them into meshes/GameObjects much easier. </summary>
 public static class Importer

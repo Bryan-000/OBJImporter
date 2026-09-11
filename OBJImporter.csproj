@@ -1,18 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="Paths.props" />
+  <Import Project="Paths.props" />
+  <Import Project="PluginInfoGenerator.targets" />
 	
 	<PropertyGroup>
 		<AssemblyName>OBJImporter</AssemblyName>
+    <GUID>Bryan_-000-.OBJImporter</GUID>
 		<Version>1.0.0</Version>
 
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<LangVersion>14</LangVersion>
 		<DebugType>embedded</DebugType>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<NoWarn>IDE0130, IDE0251, IDE0062</NoWarn>
-
-    <!-- Compile time constants, add "Debug" here for extra debugging tools that aren't usually compiled into release builds. -->
-    <DefineConstants></DefineConstants>
+    <NoWarn>IDE0130, IDE0251, IDE0062</NoWarn>
 
 		<!-- Resources so nuget can fucking find BepInEx and Unity. -->
 		<RestoreAdditionalProjectSources>
@@ -38,7 +36,7 @@
     <Reference Include="$(ManagedPath)\Unity.Addressables.dll" />
     <Reference Include="$(ManagedPath)\Unity.ResourceManager.dll" />
 	</ItemGroup>
-
+	
 	<Target Name="PreBuild" BeforeTargets="Build">
 		<!-- Log an error if the ULTRAKILLPath isn't set as it's nessecary for building the mod. -->
 		<Error Condition="!Exists($(ULTRAKILLPath))" Text="ULTRAKILLPath not set, open the Paths.props file and set ULTRAKILLPath to where ever your ULTRAKILL install is located on your computer." />

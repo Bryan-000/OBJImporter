@@ -8,8 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
-using Info = OBJPlugin.Information;
-using UnityDebug = UnityEngine.Debug;
+using static OBJPlugin;
 
 /// <summary>
 /// This is an internal logic class, <para/>
@@ -19,7 +18,7 @@ public static class Parser
 {
     private static readonly plog.Logger Log = new("Parser");
 
-    [Conditional("Debug")]
+    [Conditional("DEBUG")]
     private static void LogDebug(string message) =>
         Log.Info(message);
 
