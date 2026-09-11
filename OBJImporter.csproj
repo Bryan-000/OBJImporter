@@ -43,11 +43,8 @@
 	</Target>
 	
 	<Target Name="PostBuild" AfterTargets="Build">
-		<!-- Log a Warning if the PluginPath doesn't exist as it's used for knowing where to copy the DLL. -->
-		<Warning Condition="!Exists($(PluginPath))" Text="PluginPath not set, open the Paths.props file and set it to where your BepInEx plugins folder is." />
-
 		<!-- Copy the DLL if the PluginPath does exist. -->
-		<Message Condition="Exists($(PluginPath))" Text="Copying DLL to: $(CopyPath)..." Importance="high" />
-		<Copy Condition="Exists($(PluginPath))" SourceFiles="$(TargetPath)" DestinationFolder="$(CopyPath)" OverwriteReadOnlyFiles="true" />
+		<Message Text="Copying DLL to: $(CopyPath)..." Importance="high" />
+		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(CopyPath)" OverwriteReadOnlyFiles="true" />
 	</Target>
 </Project>

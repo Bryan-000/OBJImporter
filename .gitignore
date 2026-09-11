@@ -1,5 +1,8 @@
+.vscode/*
 .vs/
+.idea/
 .git/
-obj/*
+
 bin/*
-*.sln
+obj/*
+out/*
