@@ -1,4 +1,6 @@
-﻿namespace ObjImporter;
+﻿global using UnityDebug = UnityEngine.Debug;
+
+namespace ObjImporter;
 
 using BepInEx;
 using GameConsole;

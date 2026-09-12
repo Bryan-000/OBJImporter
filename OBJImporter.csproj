@@ -3,13 +3,14 @@
   <Import Project="PluginInfoGenerator.targets" />
 	
 	<PropertyGroup>
-		<AssemblyName>ObjImporter</AssemblyName>
+    <RootNamespace>ObjImporter</RootNamespace>
+    <AssemblyName>ObjImporter</AssemblyName>
     <GUID>Bryan_-000-.ObjImporter</GUID>
-		<Version>1.0.0</Version>
+    <Version>1.0.0</Version>
 
-		<TargetFramework>netstandard2.1</TargetFramework>
-		<LangVersion>14</LangVersion>
-		<DebugType>embedded</DebugType>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>14</LangVersion>
+    <DebugType>embedded</DebugType>
     <NoWarn>IDE0130, IDE0251, IDE0062</NoWarn>
 
 		<!-- Resources so nuget can fucking find BepInEx and Unity. -->
