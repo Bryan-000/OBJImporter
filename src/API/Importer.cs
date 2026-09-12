@@ -1,6 +1,6 @@
-﻿namespace OBJImporter.API;
+﻿namespace ObjImporter.API;
 
-using OBJImporter.Tools;
+using ObjImporter.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -1,13 +1,13 @@
-﻿namespace OBJImporter;
+﻿namespace ObjImporter;
 
 using BepInEx;
 using GameConsole;
 using HarmonyLib;
 
 [BepInPlugin(Info.GUID, Info.Name, Info.Version)]
-public partial class OBJPlugin : BaseUnityPlugin
+public partial class ObjPlugin : BaseUnityPlugin
 {
-    internal static OBJPlugin Instance;
+    internal static ObjPlugin Instance;
 
     /// <summary> :33333 </summary>
     private void Awake()
@@ -20,7 +20,7 @@ public partial class OBJPlugin : BaseUnityPlugin
 
 #if DEBUG
 
-    /// <summary> Adds our command to the F8 console when it's created. </summary>
+    /// <summary> Adds debugging commands for importing to the F8 console when it's created. </summary>
     [HarmonyPostfix] [HarmonyPatch(typeof(Console), "Awake")]
     private static void AddCmdOnConsoleLoad(Console __instance)
     {

@@ -7,7 +7,7 @@
         <![CDATA[
 namespace $(RootNamespace)%3B
 
-public partial class OBJPlugin
+public partial class ObjPlugin
 {
     public static new class Info
     {
@@ -24,7 +24,7 @@ public partial class OBJPlugin
 }
       ]]>
       </GeneratedText>
-      <GeneratedFilePath>$(IntermediateOutputPath)OBJImporterPluginInfo.cs</GeneratedFilePath>
+      <GeneratedFilePath>$(IntermediateOutputPath)ObjImporterPluginInfo.cs</GeneratedFilePath>
     </PropertyGroup>
 
     <ItemGroup>

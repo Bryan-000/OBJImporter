@@ -1,17 +1,17 @@
 ﻿#if DEBUG
 
-namespace OBJImporter;
+namespace ObjImporter;
 
 using GameConsole;
-using OBJImporter.API;
-using OBJImporter.Tools;
+using ObjImporter.API;
+using ObjImporter.Tools;
 using System.Diagnostics;
 using UnityEngine;
 
 internal class ImportCommand : ICommand
 {
     public string Name => "Import";
-    public string Description => "Imports an OBJ file into ultrakill.";
+    public string Description => "Imports a .obj file into ultrakill.";
     public string Command => "import";
 
     public void Execute(Console con, string[] args)

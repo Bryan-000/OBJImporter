@@ -1,4 +1,4 @@
-﻿namespace OBJImporter.Tools;
+﻿namespace ObjImporter.Tools;
 
 using System;
 using System.Globalization;

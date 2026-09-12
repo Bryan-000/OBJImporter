@@ -1,6 +1,6 @@
-﻿namespace OBJImporter;
+﻿namespace ObjImporter;
 
-using OBJImporter.Tools;
+using ObjImporter.Tools;
 using System.IO;
 using System.Reflection;
 using UnityEngine;

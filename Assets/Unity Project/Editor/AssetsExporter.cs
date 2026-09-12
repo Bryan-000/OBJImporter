@@ -13,7 +13,7 @@ public class AssetsExporter : EditorWindow
     [SerializeField] private string exportPath; // also i saw some1 put the lil [] thing before the field once and i like it so im using it now :3
 
     /// <summary> I use this script for multiple mods :P </summary>
-    private const string ModName = "OBJImporter";
+    private const string ModName = "ObjImporter";
 
     /// <summary> Create the Export Assets button and the Assets Exporter window when the buttons clicked. </summary>
     [MenuItem("Assets/Export Assets")]

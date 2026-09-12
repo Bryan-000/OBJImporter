@@ -1,6 +1,6 @@
-﻿namespace OBJImporter.Tools;
+﻿namespace ObjImporter.Tools;
 
-using OBJImporter.API;
+using ObjImporter.API;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
-using static OBJPlugin;
+using static ObjPlugin;
 
 /// <summary>
 /// This is an internal logic class, <para/>
@@ -25,7 +25,7 @@ public static class Parser
     public static void CreateMesh(string path, out Mesh mesh, out List<Material> materials, bool lighting = false)
     {
         // go through each line and read the obj's data, variables starting with 'obj_' get modified b4 being fed into the unity mesh
-        ExtractOBJData(path,
+        ExtractObjData(path,
             out List<Vector3> rawVectices, out List<Vector3> rawNormals, out List<Vector2> rawUVs,
             out List<Vector3> vertices,    out List<Vector3> normals,    out List<Vector2> UVs,
             out List<List<int>> subMeshIndices, out materials
@@ -65,7 +65,7 @@ public static class Parser
         mesh.RecalculateBounds();
     }
 
-    public static void ExtractOBJData(string objPath,
+    public static void ExtractObjData(string objPath,
             out List<Vector3> rawVertices, out List<Vector3> rawNormals, out List<Vector2> rawUVs,
             out List<Vector3> vertices,    out List<Vector3> normals,    out List<Vector2> UVs,
             out List<List<int>> indices,   out List<Material> outMaterials
@@ -238,7 +238,7 @@ public static class Parser
         if (Info.Debug)
         {
             stopwatch.Stop();
-            LogDebug($".OBJ mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
+            LogDebug($".obj mesh data extraction took {stopwatch.Elapsed.TotalMilliseconds}ms");
         }
     }
 
@@ -282,7 +282,7 @@ public static class Parser
                         case 'm' when line.StartsWith("map_Kd"):
                             string texPath = Path.GetFullPath(line[7..].ToString(), Path.GetDirectoryName(mtlPath));
 
-                            OBJPlugin.Instance.StartCoroutine(AssignTextureCorountine(current, texPath));
+                            ObjPlugin.Instance.StartCoroutine(AssignTextureCorountine(current, texPath));
                             break;
                     }
                 }
